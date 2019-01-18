@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/jquery.dataTables.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/matrix-style.css}" />
+    <link rel="stylesheet" th:href="@{/css/matrix-media.css}" />
+    <link rel="stylesheet" th:href="@{/css/index.css}"/>
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+    <title>资讯管理</title>
+    <style>
+        #menu ul ul {
+            display: none;
+        }
+        #menu ul:nth-of-type(1) ul{
+            display: block ;
+        }
+
+        table{
+            table-layout: fixed;
+            /*word-break: break-all;*/
+            word-wrap: break-word;
+            /*border-collapse: collapse;*/
+
+        }
+        table thead tr th:nth-of-type(6) div{
+            width: 300px !important;
+        }
+        #menu ul:nth-of-type(1) ul .active a{
+            color: #fff !important;
+        }
+    </style>
+</head>
+<body>
+
+
+<!--Header-part-->
+<div id="header">
+    <h1><a href="dashboard.html">Matrix Admin</a></h1>
+</div>
+<!--close-Header-part-->
+
+<!--top-Header-menu-->
+<div th:include="common/top :: top"></div>
+<div th:include="common/menu :: menu"></div>
+
+<div id="content">
+    <!--<div id="content-header">-->
+    <!--<div id="breadcrumb"> <a href="#" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="#" class="current">Tables</a> </div>-->
+    <!--</div>-->
+    <div class="container-fluid">
+        <hr>
+        <div class="row-fluid">
+            <div class="span12">
+
+                <div class="widget-box">
+                    <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
+                        <h5>资讯列表</h5>
+                    </div>
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label >开始时间:</label>
+                            <input type="date" class="form-control" id="beginTime-search" placeholder="开始时间:"/>
+                        </div>
+                        <div class="form-group">
+                            <label >结束时间:</label>
+                            <input type="date" class="form-control" id="endTime-search" placeholder="结束时间"/>
+                        </div>
+                        <div class="form-group">
+                            <label >标题:</label>
+                            <input type="text" class="form-control" id="title-search" placeholder="标题:"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">类型:</label>
+                            <select id="type-search"  class="form-control">
+                                <option value="">全部</option>
+                                <option value="环保新闻">环保新闻</option>
+                                <option value="环保政策">环保政策</option>
+                                <option value="环保常识">环保常识</option>
+                                <option value="企业信息">企业信息</option>
+                            </select>
+                        </div>
+                        <button type="button"  onclick="search();" class="btn btn-primary">查询</button>
+                        <button type="button" shiro:hasPermission="/documents/add" onclick="$('#resourcesModal').modal();" class="btn btn-info" style="float: right; margin-right: 1px;">新增</button>
+                        <button type="button" shiro:hasPermission="/documents/delete" onclick="delById();" class="btn btn-info" style="float: right; margin-right: 1px;">删除</button>
+                        <button type="button" shiro:hasPermission="/documents/update" onclick="allDocument();" class="btn btn-info" style="float: right; margin-right: 1px;">修改</button>
+                    </form>
+                    <table class="table table-bordered data-table" id="datatable" >
+                        <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" class="checkall" />
+                            </th>
+                            <th>ID</th>
+                            <th>标题</th>
+                            <th>类型</th>
+                            <th>文章链接</th>
+                            <th>图片链接</th>
+                            <th>转载日期</th>
+                            <th>作者</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--</div>-->
+
+<!--弹框-->
+<div class="modal fade bs-example-modal-sm"  id="selectResources" tabindex="-1" role="dialog" aria-labelledby="selectRoleLabel">
+    <div class="modal-dialog modal-sm" role="document" style="height: 600px; "  >
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="selectRoleLabel">修改资讯</h4>
+            </div>
+            <div class="modal-body">
+                <form id="boxRoleForm" >
+                    <ul id="treeDemo" class="ztree"></ul>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="updateDocument();" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--弹框-->
+
+
+<!--添加弹框-->
+<div class="modal fade" id="resourcesModal" tabindex="-1" role="dialog" aria-labelledby="addroleLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addroleLabel">添加资讯</h4>
+            </div>
+            <div class="modal-body">
+                <form id="documentsForm">
+                    <div class="form-group">
+                        <label  class="control-label">标题:</label>
+                        <input type="text" class="form-control" name="title" id="title" placeholder="请输入资讯标题"/>
+                    </div>
+                    <div class="form-group">
+                        <label  class="control-label">类型:</label>
+                        <select class="form-control" name="type" id="type" >
+                            <option value="环保新闻">环保新闻</option>
+                            <option value="环保政策">环保政策</option>
+                            <option value="环保常识">环保常识</option>
+                            <option value="企业信息">企业信息</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label  class="control-label">文章链接:</label>
+                        <input type="text" class="form-control" id="documentUrl" name="documentUrl"  placeholder="请输入文章链接">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">图片链接:</label>
+                        <input type="text" class="form-control" id="imageUrl" name="imageUrl"  placeholder="请输入图片链接">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">发布者:</label>
+                        <input type="text" class="form-control" id="publisher" name="publisher"  placeholder="请输入发布者">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="addResources();" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal_edit" style="position: absolute;top: 0px;left: 0px;width: 100%;height: 100%;background-color: rgba(0,0,0,0.3);display: none">
+    <div class="edit_content" style="margin: 40px auto; width: 40%;height: 560px;background-color: #fff">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" onclick="hiddenedit()">&times;</span></button>
+            <h4 class="modal-title" >修改资讯</h4>
+        </div>
+        <div class="modal-body">
+            <form class="modal_content">
+
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="hiddenedit()">关闭</button>
+            <button type="button" onclick="updateDocument();" class="btn btn-primary">保存</button>
+        </div>
+    </div>
+</div>
+
+
+<!--/添加弹框-->
+
+
+
+<!--Footer-part-->
+<div class="row-fluid">
+    <!--<div id="footer" class="span12"> 2017 &copy; yqj <a href="http://themedesigner.in/">Themedesigner.in</a> </div>-->
+</div>
+<!--end-Footer-part-->
+<script type="text/javascript" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}" th:sr></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script th:src="@{/js/layer.js}"></script>
+<script type="text/javascript">
+
+    var table;
+    $(".checkall").click(function () {
+        var check = $(this).prop("checked");
+        $(".checkchild").prop("checked", check);
+    });
+    $(document).ready(function() {
+        table = $('#datatable').DataTable( {
+            "dom": '<"top"i>rt<"bottom"flp><"clear">',
+            "searching" : false,
+            "bJQueryUI": true,
+            "sPaginationType": "full_numbers",
+            "serverSide": true,//开启服务器模式，使用服务器端处理配置datatable
+            "processing": true,//开启读取服务器数据时显示正在加载中……特别是大数据量的时候，开启此功能比较好
+            "responsive": true,
+            "autoWidth": false,
+            // "ajax": 'documents',
+            ajax : function(data, callback, settings) {
+                //封装请求参数
+                var param = getDocument(data);
+
+                $.ajax({
+                    type: "GET",
+                    url: 'documents',
+                    cache : false,  //禁用缓存
+                    data: param,    //传入已封装的参数
+                    dataType: "json",
+                    success: function(result) {
+                        //封装返回数据  如果参数相同，可以直接返回result ，此处作为学习，先这么写了。
+                        var returnData = {};
+                        returnData.draw = result.draw;//这里直接自行返回了draw计数器,应该由后台返回
+                        returnData.recordsTotal = result.recordsTotal;//总记录数
+                        returnData.recordsFiltered = result.recordsFiltered;//后台不实现过滤功能，每次查询均视作全部结果
+                        returnData.data = result.data;
+                        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+                        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+                        callback(returnData);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert("查询失败");
+                    }
+                });
+            },
+            "columns": [
+                {
+                    "sClass": "text-center",
+                    "data": "id",
+                    "render": function (data, type, full, meta) {
+                        return '<input type="checkbox"  class="checkchild"  value="' + data + '" />';
+                    },
+                    "bSortable": false
+                },
+                { "data": "id" },
+                { "data": "title" },
+                { "data": "type" },
+                { "data": "documentUrl" },
+                { "data": "imageUrl" },
+                { "data": "publishDate" },
+                { "data": "publisher" },
+            ],
+            columnDefs:[
+                { "orderable": false, "targets": 1 },
+                { "orderable": false, "targets": 2 },
+                { "orderable": false, "targets": 3 },
+                { "orderable": false, "targets": 4 },
+                { "orderable": false, "targets": 5 },
+                { "orderable": false, "targets": 6 },
+                { "orderable": false, "targets": 7 }
+            ],
+            language: {
+                "sProcessing":   "处理中...",
+                "sLengthMenu":   "显示 _MENU_ 项结果",
+                "sZeroRecords":  "没有匹配结果",
+                "sInfo":         "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                "sInfoEmpty":    "显示第 0 至 0 项结果，共 0 项",
+                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                "sInfoPostFix":  "",
+                "sSearch":       "搜索:",
+                "sUrl":          "",
+                "sEmptyTable":     "表中数据为空",
+                "sLoadingRecords": "载入中...",
+                "sInfoThousands":  ",",
+                "oPaginate": {
+                    "sFirst":    "首页",
+                    "sPrevious": "上页",
+                    "sNext":     "下页",
+                    "sLast":     "末页"
+                },
+                "oAria": {
+                    "sSortAscending":  ": 以升序排列此列",
+                    "sSortDescending": ": 以降序排列此列"
+                }
+            }
+        } );
+    } );
+
+    function search(){
+        table.ajax.reload();
+    }
+
+    //封装查询参数
+    function getDocument(data){
+        var param = {};
+        //组装排序参数
+        param.beginTime = $("#beginTime-search").val();//查询条件
+        param.endTime = $("#endTime-search").val();//查询条件
+        param.title = $("#title-search").val();//查询条件
+        param.type = $("#type-search").val();//查询条件
+        //组装分页参数
+        param.start = data.start;
+        param.length = data.length;
+        param.draw = data.draw;
+        return param;
+    }
+
+    //添加用户
+    function addResources() {
+        var title = $("#title").val();
+        var documentUrl = $("#documentUrl").val();
+        var imageUrl = $("#imageUrl").val();
+        var publisher = $("#publisher").val();
+
+        if(title == "" || title == undefined || title == null){
+            return layer.msg('资讯标题不能为空', function(){
+                //关闭后的操作
+            });
+        }
+        if(documentUrl == "" || documentUrl == undefined || documentUrl == null){
+            return layer.msg('文章链接不能为空', function(){
+                //关闭后的操作
+            });
+        }
+        if(imageUrl == "" || imageUrl == undefined || imageUrl == null){
+            return layer.msg('图片链接不能为空', function(){
+                //关闭后的操作
+            });
+        }
+        if(publisher == "" || publisher == undefined || publisher == null){
+            return layer.msg('发布者不能为空', function(){
+                //关闭后的操作
+            });
+        }
+
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url:'documents/add',
+            data:$('#documentsForm').serialize(),// 你的formid
+            async: false,
+            success: function(data) {
+                if(data=="success"){
+                    layer.msg('保存成功');
+                    table.ajax.reload();
+                    $('#resourcesModal').modal('hide');
+                }else{
+                    layer.msg('保存失败');
+                    $('#resourcesModal').modal('hide');
+                }
+            }
+        });
+    }
+
+    //删除
+    function delById() {
+        var id = $(".checkchild:checked").val();
+        if ($(".checkchild:checked").length < 1)
+        {
+            layer.msg('请选择一条数据');
+            return;
+        }
+        if ($(".checkchild:checked").length > 1)
+        {
+            layer.msg('一次只能修改一条数据');
+            return;
+        }
+        layer.confirm('您确定要删除该资讯吗？', {
+            btn: ['确认','取消'] //按钮
+        }, function(){
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url:'documents/delete',
+                data:{id:id},
+                async: false,
+                success: function(data) {
+                    if(data=="success"){
+                        layer.msg('删除成功');
+                        table.ajax.reload();
+                    }else{
+                        layer.msg('删除失败');
+                    }
+                }
+            });
+        });
+
+    }
+
+
+    //弹出选择文章的框
+    function allDocument(){
+        var id = $(".checkchild:checked").val();
+        if ($(".checkchild:checked").length < 1)
+        {
+            layer.msg('请选择一条数据');
+            return;
+        }
+        if ($(".checkchild:checked").length > 1)
+        {
+            layer.msg('一次只能修改一条数据');
+            return;
+        }
+        $.ajax({
+            async:false,
+            type : "POST",
+            data:{id:id},
+            url: "documents/selectDocumentById",
+            dataType:'json',
+            success: function(data){
+                $(".modal_content").empty();
+                var html = "";
+
+                html = html + "<div class='form-group'><label  class='control-label'>ID:</label><input type='text' class='form-control' readonly='readonly' value=" + data[0].id +" name='id'/></div>"
+                    + "<div class='form-group'><label  class='control-label'>标题:</label><input type='text' class='form-control' value=" + data[0].title +" name='title'/></div>"
+                    + "<div class='form-group'><label  class='control-label'>类型:</label></br><select style='width: 100%;height: 34px' class=‘form-control’value=" + data[0].type+ ""+" name='type'>"
+                    + "<option value='环保新闻'>环保新闻</option> <option value='环保政策'>环保政策</option><option value='环保常识'>环保常识</option><option value='企业信息'>企业信息</option></select></div>"
+                    + "<div class='form-group'><label  class='control-label'>文章链接:</label><input type='text' class='form-control' value="+ data[0].documentUrl +" name='documentUrl' /></div>"
+                    + "<div class='form-group'><label  class='control-label'>图片链接:</label><input type='text' class='form-control' value=" + data[0].imageUrl +" name='imageUrl' /></div>"
+                    + "<div class='form-group'><label  class='control-label'>发布者:</label><input type='text' class='form-control' value=" + data[0].publisher +" name='publisher' /></div>"
+                $(".modal_content").append(html);
+                $('.modal_edit').show()
+            }
+        });
+
+    }
+
+
+    //修改
+    function updateDocument() {
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url:"documents/update",
+            data:$('.modal_content').serialize(),// 你的formid
+            async: false,
+            success: function(data) {
+                if(data=="success"){
+                    layer.msg('修改成功！');
+                    location.reload();
+                    $('.modal_content').modal('hide');
+                }else{
+                    layer.msg('修改失败！');
+                    $('.modal_content').modal('hide');
+                }
+            }
+        });
+
+    }
+
+    function hiddenedit() {
+        $('.modal_edit').hide();
+    }
+
+</script>
+
+</body>
+</html>

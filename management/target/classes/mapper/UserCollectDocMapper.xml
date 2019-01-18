@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leadmap.management.mapper.UserCollectDocMapper">
+  <resultMap id="BaseResultMap" type="com.leadmap.management.model.UserCollectDocInfo">
+
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="collect_time" jdbcType="TIMESTAMP" property="collectTime" />
+    <result column="doc_id" jdbcType="VARCHAR" property="docId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+
+  </resultMap>
+  <delete id="deleteUserCollectByDoc">
+		delete from user_collect_doc_info where doc_id=#{docId}
+	</delete>
+
+    <select id="getUserCollectDocInfoByDocId"  parameterType="com.leadmap.management.model.UserCollectDocInfo" resultMap="BaseResultMap">
+		select * from user_collect_doc_info where doc_id=#{docId}
+  </select>
+</mapper>

@@ -1,0 +1,137 @@
+.dropdown>ul>li{
+    border-radius: 5px;
+    height:30px;
+    margin: 0 auto;
+}
+.dropdown>ul>li>a:link{
+    color: #2A99D2;
+    text-align: right;
+}
+.dropdown>ul>li>a:hover{
+    color: #fff;
+}
+#buttonExit{
+    color: #2A99D2;
+}
+#buttonExit:hover{
+    color: #fff;
+}
+
+.fontShow{
+    color: #2A99D2;
+    font-size: 16px;
+    text-align: right;
+    margin: 0 auto;
+    padding: 0 auto;
+    line-height: 30px;
+}
+
+.dropdown ul li:hover{
+    background: #2A99D2;
+    color: #fff;
+}
+#li2:hover a{
+    color: #fff;
+}
+
+#li3:hover a{
+    color: #fff;
+}
+
+nav.navbar.navbar-default.navbar-static-top {
+    height: 110px;
+}
+
+.sidebar-nav.navbar-collapse {
+
+    position: absolute;
+    width: 250px;
+}
+.navbar-header {
+    height: 57px;
+}
+
+.borderShow{
+    color: #333333;
+    margin-right: 15px;
+    font-weight: 500;
+    font-size: 16px;
+    height: 43px;
+    width: 100px;
+    float: left;
+    line-height: 43px;
+}
+.borderShow:hover{
+    text-decoration: none;
+    background-color: #35BEEF;
+    color: #fff;
+}
+.borderShow:visited{
+    text-decoration: none;
+}
+.borderShow:hover span{
+    color: #fff;
+}
+
+.menuc{
+    color: #333333;
+}
+
+.menuc:hover{
+    text-decoration: inherit;
+}
+
+#selector{
+    overflow: hidden;
+    width: 115px;
+}
+
+#selector:hover{
+    overflow: visible;
+}
+
+.selectList{
+    background-color: white;
+    height: 140px;
+    width: 120%;
+    /*border-left: 1px solid darkgray;*/
+    /*border-right: 1px solid darkgray;*/
+}
+
+.fontShow3{
+    text-decoration: none;
+}
+
+.fontShow3:hover{
+    text-decoration: inherit;
+    color: inherit;
+}
+
+.selectList>p{
+    padding-left: 10px;
+    border-bottom: 1px solid #cccccc;
+    height: 35px;
+    line-height: 35px;
+    color:rgb(249, 249, 249);
+    background:rgb(221,221,221);
+}
+
+.selectList>p:hover{
+    background-color: #35BEEF;
+}
+
+.selectList>p:hover a{
+    color: white;
+}
+
+.triangle2 {
+    width: 0;
+    height: 0;
+    border: 5px solid #999999;
+    border-bottom: none;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    position: relative;
+    top: 14px;
+    right: 6px;
+}

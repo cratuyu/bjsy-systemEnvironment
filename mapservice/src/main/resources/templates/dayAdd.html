@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>用户日增报表</title>
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vendor/metisMenu/metisMenu.min.css" rel="stylesheet" />
+    <link href="/dist/css/sb-admin-2.css" rel="stylesheet" />
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+<div id="wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header" style="margin: 20px 20px 20px">截止当前共有?个用户注册成功!</h2>
+            </div>
+        </div>
+
+        <div style="width: 1400px;height:400px;" id="mainTop">
+
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label>时间:</label>
+                            <input type="month" class="form-control" id="time-search" placeholder="选择时间"/>
+                        </div>
+                        <button type="button" onclick="initEndChart();" class="btn btn-primary">查询</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div style="width: 1400px;height:400px;" id="mainEnd">
+
+        </div>
+    </div>
+    <!-- /#page-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<!-- jQuery -->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/metisMenu/metisMenu.min.js"></script>
+<script src="/dist/js/sb-admin-2.js"></script>
+<script src="/vendor/echarts/echarts.min.js"></script>
+<script type="text/javascript">
+    function initTopChart() {
+        var myChartTop = echarts.init(document.getElementById('mainTop'));
+        // 指定图表的配置项和数据
+        var optionTop = {
+            title: {
+                text: '本周用户注册数量变化'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['用户注册']
+            },
+            toolbox: {
+                right: 30,
+                show: true,
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: []
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} 人'
+                    },
+                    minInterval: 1
+                }
+            ],
+            series: [
+                {
+                    name: '用户注册',
+                    type: 'line',
+                    stack: '总量',
+                    //data:[120, 132, 101, 134, 90, 230, 100]
+                    data: []
+                }
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChartTop.setOption(optionTop);
+
+        var names = [];    //类别数组（实际用来盛放X轴坐标值）
+        var nums = [];    //销量数组（实际用来盛放Y坐标值）
+        $.ajax({
+            type: "post",
+            async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+            url: "/usersDayAdd",    //请求发送到TestServlet处
+            dataType: "json",        //返回数据形式为json
+            success: function (result) {
+
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+                if (result) {
+                    // 下列注释 是防止 thymeleaf 引擎解析 小于号 时报错
+                    /*<![CDATA[*/
+                    for (var i = 0; i < result.data.length; i++) {
+                        names.push(result.data[i].createTime);    //挨个取出类别并填入类别数组
+                    }
+                    names.reverse();
+                    /*]]>*/
+                    /*<![CDATA[*/
+                    for (var i = 0; i < result.data.length; i++) {
+                        nums.push(result.data[i].count);
+                    }
+                    // 翻转数据
+                    nums.reverse();
+                    /*]]>*/
+                    myChartTop.hideLoading();    //隐藏加载动画
+                    myChartTop.setOption({        //加载数据图表
+                        xAxis: {
+                            data: names
+                        },
+                        series: [{
+                            // 根据名字对应到相应的系列
+                            name: '用户注册',
+                            data: nums
+                        }]
+                    });
+                }
+            }, error: function (errorMsg) {
+                //请求失败时执行该函数
+                myChartTop.hideLoading();
+            }
+        });
+    }
+
+    function initEndChart(){
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('mainEnd'));
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '月用户注册情况变化',
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['用户注册']
+            },
+            toolbox: {
+                right:30,
+                show: true,
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    // data : ['周一','周二','周三','周四','周五','周六','周日']
+                    data: []
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} 人'
+                    },
+                    minInterval: 1
+                }
+            ],
+            series: [
+                {
+                    name: '用户注册',
+                    type: 'line',
+                    stack: '总量',
+                    // data:[120, 132, 101, 134, 90, 230, 100]
+                    data: []
+                }
+            ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+
+        var names = [];    //类别数组（实际用来盛放X轴坐标值）
+        var nums = [];    //销量数组（实际用来盛放Y坐标值）
+        var time = $("#time-search").val(); //请求参数
+
+        // ajax请求 成功获取数据 调用下列代码
+        $.ajax({
+            type: "post",
+            async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+            url: "/usersMonthAdd",    //请求发送到TestServlet处
+            data: {"time":time},
+            dataType: "json",        //返回数据形式为json
+            success: function (result) {
+
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+                if (result) {
+                    /*<![CDATA[*/
+                    for (var i = 0; i < result.data.length; i++) {
+                        names.push(result.data[i].createTime);    //挨个取出类别并填入类别数组
+                    }
+                    /*]]>*/
+                    /*<![CDATA[*/
+                    for (var i = 0; i < result.data.length; i++) {
+                        nums.push(result.data[i].count);    //挨个取出数量并填入销量数组
+                    }
+                    /*]]>*/
+                    // 此处添加 ajax 请求 获取数据成功时调用下列代码 数据保存进数组
+                    myChart.hideLoading();    //隐藏加载动画
+                    myChart.setOption({        //加载数据图表
+                        xAxis: {
+                            data: names
+                        },
+                        series: [{
+                            // 根据名字对应到相应的系列
+                            name: '用户注册',
+                            data: nums
+                        }]
+                    });
+                }
+            }, error: function (errorMsg) {
+                //请求失败时执行该函数
+                myChart.hideLoading();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $.ajax({
+            type: "post",
+            url: "/allUsers",
+            data: {},
+            success: function (result) {
+                info = "截止当前共有 " + result + " 个用户注册成功!"
+                $('.page-header').text(info);
+            }
+        });
+        initTopChart();
+        initEndChart();
+    })
+</script>
+</body>
+
+</html>

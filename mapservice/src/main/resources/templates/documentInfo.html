@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>顺义APP</title>
+
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/vendor/metisMenu/metisMenu.min.css" rel="stylesheet"/>
+    <link href="/dist/css/sb-admin-2.css" rel="stylesheet"/>
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+
+</head>
+<style type="text/css">
+    #wrapper {
+        width: 100%;
+        margin: auto;
+        overflow: auto;
+    }
+    #page_div{
+        text-align:center;
+        padding-top:4px;
+        padding-bottom:4px;
+        /*margin-top:10%;*/
+    }
+
+    .modal1{
+        position:fixed;
+        top:5%;
+        left:50%;
+        z-index:1050;
+        width:560px;
+        transform: translateX(-50%);
+        overflow:auto;
+        background-color:#fff;
+        border:1px solid rgba(0,0,0,0.3);
+        border-radius:6px;
+        box-shadow:0 3px 7px rgba(0,0,0,0.3);
+        background-clip:padding-box;
+        display: none;
+    }
+
+</style>
+<body style="height: 900px;overflow: auto;">
+<div id="wrapper" >
+    <div id="container-fluid" >
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header" style="margin: 20px 20px 20px">查看资讯</h2></div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+            <form class="form-inline" style="margin-left: 20px;margin-bottom: 20px">
+                <div class="form-group">
+                    <label >开始时间:</label>
+                    <input type="date" class="form-control" id="beginTime-search" placeholder="开始时间:"/>
+                </div>
+                <div class="form-group">
+                    <label >结束时间:</label>
+                    <input type="date" class="form-control" id="endTime-search" placeholder="结束时间"/>
+                </div>
+                <div class="form-group">
+                    <label >标题:</label>
+                    <input type="text" class="form-control" id="title-search" placeholder="标题:"/>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">类型:</label>
+                    <select id="type-search"  class="form-control">
+                        <option value="">全部</option>
+                        <option value="环保新闻">环保新闻</option>
+                        <option value="环保政策">环保政策</option>
+                        <option value="环保常识">环保常识</option>
+                        <option value="企业信息">企业信息</option>
+                    </select>
+                </div>
+                <button type="button"  onclick="search();" class="btn btn-primary">查询</button>
+                <button type="button"  onclick="add();" class="btn btn-primary" style="float: right;margin-right: 50px">增加</button>
+                <!--<button type="button" onclick="update()" class="btn btn-primary" style="float: right; margin-right: 5px ">修改</button>-->
+            </form>
+
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">列表</div>
+                    <div class="panel-body">
+                        <table width="100%" class="table table-striped table-bordered table-hover col-lg-12">
+                            <thead>
+                            <tr>
+                                <th >id</th>
+                                <th class="col-lg-4">标题</th>
+                                <th class="col-lg-1">类别</th>
+                                <th class="col-lg-1">发布时间</th>
+                                <th class="col-lg-1">文章地址</th>
+                                <th class="col-lg-3">图片地址</th>
+                                <th class="col-lg-1">发布人</th>
+                                <th class="col-lg-1">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="page_div" >
+                        <input type="button" value="首页" class="btn btn-default" onclick="showPage(0)" />
+                        <input type="button" value="上一页" class="btn btn-default" onclick="showPage(pageNum-1)" />
+                        <input type="button" value="下一页" class="btn btn-default" onclick="showPage(pageNum+1)" />
+                        <input type="button" value="尾页" class="btn btn-default" onclick="showPage(pageCount)"   />
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal1" id="addDocument">
+        <div class="modal-header" style="padding: 5px 15px 5px 15px;background: #EFEFEF">
+            <h4 class="modal-title" id="addroleLabel">添加资讯</h4>
+        </div>
+        <form action="/addDocumentInfo" method="post" style="padding: 10px 10px 0 10px;" onsubmit="return checkField();">
+            <div class="form-group">
+                <label>文章链接:</label>
+                <input class="form-control" id="documentUrl" placeholder="请输入文章url" name="documentUrl" />
+            </div>
+            <div class="form-group">
+                <label>发布人:</label>
+                <input class="form-control" id="publisher" placeholder="请输入发布人" name="publisher" />
+            </div>
+            <div class="form-group">
+                <label>文章标题:</label>
+                <input class="form-control" id="title" placeholder="请输入文章标题" name="title" />
+            </div>
+            <div class="form-group">
+                <label>类别:</label>
+                <select class="form-control" id="type" name="type">
+                    <option value="环保新闻">环保新闻</option>
+                    <option value="环保政策">环保政策</option>
+                    <option value="环保常识">环保常识</option>
+                    <option value="企业信息">企业信息</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>图片链接:</label>
+                <input class="form-control" id="imageUrl" placeholder="请输入图片url" name="imageUrl" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="hide1()">关闭</button>
+                <button type="submit"  class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal1" id="updateDocument">
+        <div class="modal-header" style="padding: 5px 15px 5px 15px;background: #EFEFEF">
+            <h4 class="modal-title">修改资讯(单击你要修改的数据)</h4>
+        </div>
+        <form action="/updateDocumentInfo" method="post" style="padding: 10px 10px 0 10px;" onsubmit="return checkField1()">
+            <div class="form-group">
+                <label>文章id:</label>
+                <input class="form-control" id="id1" placeholder="请输入文章id" name="id1" disabled="disabled"/>
+            </div>
+            <input id="hiddenId" type="hidden" name="hiddenId"/>
+            <div class="form-group">
+                <label>文章url:</label>
+                <input class="form-control" id="documentUrl1" placeholder="请输入文章url" name="documentUrl" />
+            </div>
+            <div class="form-group">
+                <label>发布人:</label>
+                <input class="form-control" id="publisher1" placeholder="请输入发布人" name="publisher" value="顺义环保"/>
+            </div>
+            <div class="form-group">
+                <label>文章标题:</label>
+                <input class="form-control" id="title1" placeholder="请输入文章标题" name="title" />
+            </div>
+            <div class="form-group">
+                <label>类别:</label>
+                <select class="form-control" id="type1" name="type">
+                    <option value="环保新闻">环保新闻</option>
+                    <option value="环保政策">环保政策</option>
+                    <option value="环保常识">环保常识</option>
+                    <option value="企业信息">企业信息</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>图片url:</label>
+                <input class="form-control" id="imageUrl1" placeholder="请输入图片url" name="imageUrl" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="hide2()">关闭</button>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/metisMenu/metisMenu.min.js"></script>
+<script src="/dist/js/sb-admin-2.js"></script>
+<script>
+    pageNum = 0;
+    pageCount = 0;
+    $(document).ready(function() {
+        $("#wrapper").height((document.body.clientHeight)*0.9);
+        list();
+
+        // //
+        // $("#table > tr").each(function () {
+        //     $(this).click( function () {
+        //         var tds = this.children;
+        //         console.log(tds);
+        //         $("#id1").val(tds[0].innerText);
+        //         $("#title1").val(tds[1].innerText);
+        //         $("#type1").val(tds[2].innerText);
+        //         $("#documentUrl1").val(tds[4].innerText);
+        //         $("#imageUrl1").val(tds[5].innerText);
+        //         $("#publisher1").val(tds[6].innerText);
+        //     })
+        // })
+
+
+    });
+
+    function add() {
+        $("#addDocument").slideDown("normal")
+    }
+
+    function hide1() {
+        $("#addDocument").hide("normal", "linear")
+    }
+
+    function update() {
+        $("#updateDocument").slideDown("normal")
+    }
+
+    function hide2() {
+        $("#updateDocument").hide("normal", "linear")
+    }
+
+    function checkField() {
+        var documentUrl = $("#documentUrl").val();
+        var publisher = $("#publisher").val();
+        var title = $("#title").val();
+        var type = $("#type").val();
+        var imageUrl = $("#imageUrl").val();
+        if(documentUrl == ""){
+            alert("文章链接不可为空");
+            return false;
+        }else if(publisher == ""){
+            alert("发布人不可为空");
+            return false;
+        }else if(title == ""){
+            alert("标题不可为空");
+            return false;
+        }else if(type == ""){
+            alert("文章类型不可为空");
+            return false;
+        }else if(imageUrl == ""){
+            alert("图片链接不可为空");
+            return false;
+        }
+        return true
+    }
+
+    function checkField1() {
+        var id = $("#id1").val();
+        var documentUrl = $("#documentUrl1").val();
+        var publisher = $("#publisher1").val();
+        var title = $("#title1").val();
+        var type = $("#type1").val();
+        var imageUrl = $("#imageUrl1").val();
+        if(id == ""){
+            alert("id不可为空");
+            return false;
+        }
+        else if(documentUrl == ""){
+            alert("文章链接不可为空");
+            return false;
+        }else if(publisher == ""){
+            alert("发布人不可为空");
+            return false;
+        }else if(title == ""){
+            alert("标题不可为空");
+            return false;
+        }else if(type == ""){
+            alert("文章类型不可为空");
+            return false;
+        }else if(imageUrl == ""){
+            alert("图片链接不可为空");
+            return false;
+        }
+        return true
+    }
+
+    function list(){
+        var title = $('#title-search').val();
+        var beginTime = $('#beginTime-search').val();
+        var endTime = $('#endTime-search').val();
+        var type = $('#type-search').val();
+        var url = "/documentList";
+        $.ajax({
+            type:'post',
+            url:url,
+            datatype: "json",
+            data:{"title":title, "pageNum":0,"beginTime":beginTime,"endTime":endTime,"type":type},
+            success:function(result){
+                $("#table").children().remove();
+                if(result.data.length>0){
+                    // result.data = result.data.reverse();
+                    pageCount = result.recordCount;
+                    var html = "";
+                    $.each(result.data, function(i, item) {
+                        /*<![CDATA[*/
+                        var date = new Date(item.createTime);
+                        var month = date.getMonth()+1;
+                        if(month<10){
+                            month = "0"+month;
+                        }
+                        var day = date.getDate();
+                        if(day<10){
+                            day = "0"+day;
+                        }
+                        /*]]>*/
+                        var strDate = date.getFullYear()+"-"+month+"-"+day;
+                        var str = JSON.stringify(item).replace(/\"/g,"'");
+                        html = html + "<tr>"
+                            + "<td>" + item.id + "</td>"
+                            + "<td>" + item.title + "</td>"
+                            + "<td>" + item.type + "</td>"
+                            + "<td>" + strDate + "</td>"
+                            + '<td><a target="_blank" href="' + item.documentUrl + '">' + item.documentUrl + "</a></td>"
+                            + "<td>" + item.imageUrl + "</td>"
+                            + "<td>" + item.publisher + "</td>"
+                            + '<td><input type="button" value="删除" id="'+ item.id +'" onclick="delDocument('+item.id+')" style="margin-bottom: 5px"/>'
+                            + '<input type="button" value="修改" onclick="updateDocument('+ str + ')"/>' + '</td>'
+                            + "</tr>";
+                    });
+                    $("#table").append(html);
+                    $("#table > tr").each(function () {
+                        $(this).click( function () {
+                            var tds = this.children;
+                            $("#id1").val(tds[0].innerText);
+                            $("#hiddenId").val(tds[0].innerText);
+                            $("#title1").val(tds[1].innerText);
+                            $("#type1").val(tds[2].innerText);
+                            $("#documentUrl1").val(tds[4].innerText);
+                            $("#imageUrl1").val(tds[5].innerText);
+                            $("#publisher1").val(tds[6].innerText);
+                        })
+                    });
+                    pageNum = 0;
+                }
+            },
+            error:function(){
+                alert("请求错误");
+            }
+        });
+    }
+
+    function showPage(count) {
+        /*<![CDATA[*/
+        if(count <= 0){
+            pageNum = 0;
+        }else{
+            pageNum = count;
+        }
+        /*]]>*/
+        var title = $('#title-search').val();
+        var beginTime = $('#beginTime-search').val();
+        var endTime = $('#endTime-search').val();
+        var type = $('#type-search').val();
+        var url = "/documentList";
+        $.ajax({
+            type:'post',
+            url:url,
+            datatype: "json",
+            data:{"pageNum":pageNum, "beginTime":beginTime,"endTime":endTime,"type":type, "title":title},
+            success:function(result){
+                if(result.data.length>0){
+                    // result.data = result.data.reverse();
+                    $("#table").children().remove();
+                    var html = "";
+                    $.each(result.data, function(i, item) {
+                        /*<![CDATA[*/
+                        var date = new Date(item.createTime);
+                        var month = date.getMonth()+1;
+                        if(month<10){
+                            month = "0"+month;
+                        }
+                        var day = date.getDate();
+                        if(day<10){
+                            day = "0"+day;
+                        }
+                        /*]]>*/
+                        var strDate = date.getFullYear()+"-"+month+"-"+day;
+                        var str = JSON.stringify(item).replace(/\"/g,"'");
+                        html = html + "<tr>"
+                            + "<td>" + item.id + "</td>"
+                            + "<td>" + item.title + "</td>"
+                            + "<td>" + item.type + "</td>"
+                            + "<td>" + strDate + "</td>"
+                            + '<td><a target="_blank" href="' + item.documentUrl + '">' + item.documentUrl + "</a></td>"
+                            + "<td>" + item.imageUrl + "</td>"
+                            + "<td>" + item.publisher + "</td>"
+                            + '<td><input type="button" value="删除" id="'+ item.id +'" onclick="delDocument('+item.id+')" style="margin-bottom: 5px"/>'
+                            + '<input type="button" value="修改" onclick="updateDocument('+ str +')"/>' + '</td>'
+                            + "</tr>";
+                    });
+                    $("#table").append(html);
+                    $("#table > tr").each(function () {
+                        this.click( function () {
+                            var tds = this.children;
+                            $("#hiddenId").val(tds[0].innerText);
+                            $("#id1").val(tds[0].innerText);
+                            $("#title1").val(tds[1].innerText);
+                            $("#type1").val(tds[2].innerText);
+                            $("#documentUrl1").val(tds[4].innerText);
+                            $("#imageUrl1").val(tds[5].innerText);
+                            $("#publisher1").val(tds[6].innerText);
+                        })
+                    })
+                }else{
+                    pageNum = pageNum - 1 ;
+                    alert("没有更多数据了");
+                }
+            },
+            error:function(){
+                alert("请求错误");
+            }
+        })
+    }
+
+    function delDocument(id) {
+        var url ='/deleteDocumentInfo';
+        if(confirm('您确定要删除该资源吗？')) {
+            $.ajax({
+                type:'post',
+                url:url,
+                data:{"id":id},
+                success:function(){
+                    // if (confirm('是否确认删除？')){
+                    //     window.location.href = id;
+                    // }
+                    location.reload(true)
+                },
+                error: function () {
+                    alert("请求错误");
+                }
+            });
+        }
+    }
+
+    function updateDocument(item) {
+        // console.log(items);
+        // alert(items);
+        // var str = items.replace("'",/\"/g);
+        // var item = JSON.parse(str);
+        console.log(item);
+        $("#hiddenId").val(item.id);
+        $("#id1").val(item.id);
+        $("#title1").val(item.title);
+        $("#type1").val(item.type);
+        $("#documentUrl1").val(item.documentUrl);
+        $("#imageUrl1").val(item.imageUrl);
+        $("#publisher1").val(item.publisher);
+        update()
+    }
+    function search(){
+        list();
+    }
+</script>
+</body>
+
+</html>

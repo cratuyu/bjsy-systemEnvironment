@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leadmap.management.mapper.IpInfoMapper">
+  <resultMap id="BaseResultMap" type="com.leadmap.management.model.IpInfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="create_time" jdbcType="DATE" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="count" jdbcType="INTEGER" property="count" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="user_agent" jdbcType="VARCHAR" property="userAgent" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+
+  </resultMap>
+
+  <select id="selectByIpInfo" parameterType="com.leadmap.management.model.IpInfo" resultMap="BaseResultMap">
+    select id,ip,create_time,update_time,count,flag,user_agent,user_name from  ip_info
+    <where>
+        update_time &gt;=#{beginTimes}
+        and  update_time &lt;=#{endTimes}
+        and flag=2
+      <if test="userAgent != null and userAgent != ''">
+       and user_agent=#{userAgent}
+      </if>
+    </where>
+    order by id desc
+  </select>
+
+  <select id="selectByIpInfos" parameterType="com.leadmap.management.model.IpInfo" resultMap="BaseResultMap">
+    select id,ip,create_time,update_time,count,flag,user_agent,user_name from  ip_info
+    <where>
+       flag=2
+      <if test="userAgent != null and userAgent != ''">
+       and user_agent=#{userAgent}
+      </if>
+    </where>
+    order by id desc
+  </select>
+
+  <select id="getWeekIpInfo" resultType="java.lang.Integer" parameterType="com.leadmap.management.model.IpInfo">
+    select count(distinct ip) +
+    (select count(distinct user_name) from  ip_info
+    <where>
+      update_time &gt;=#{beginTimes}
+      and  update_time &lt;=#{endTimes}
+      and flag = 2
+    </where>)  from  ip_info
+    <where>
+      update_time &gt;=#{beginTimes}
+      and  update_time &lt;=#{endTimes}
+      and flag = 1
+    </where>
+  </select>
+
+  <select id="getMmonthIpInfo" resultType="java.lang.Integer" parameterType="com.leadmap.management.model.IpInfo">
+    select count(distinct ip) +
+    (select count(distinct user_name) from  ip_info
+    <where>
+      update_time &gt;=#{beginTimes}
+      and  update_time &lt;=#{endTimes}
+      and flag = 2
+    </where>)  from  ip_info
+    <where>
+      update_time &gt;=#{beginTimes}
+      and  update_time &lt;=#{endTimes}
+      and flag = 1
+    </where>
+  </select>
+</mapper>

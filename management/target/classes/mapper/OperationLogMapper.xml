@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leadmap.management.mapper.OperationLogMapper">
+  <resultMap id="BaseResultMap" type="com.leadmap.management.model.OperationLog">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="method" jdbcType="VARCHAR" property="method" />
+    <result column="method_name" jdbcType="VARCHAR" property="methodName" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="log_name" jdbcType="VARCHAR" property="logName" />
+    <result column="log_sign" jdbcType="VARCHAR" property="logSign" />
+  </resultMap>
+
+  <select id="selectByOperationLog" parameterType="com.leadmap.management.model.OperationLog" resultMap="BaseResultMap">
+    select * from  operation_log
+    <where>
+      create_time &gt;=#{beginTimes}
+      and  create_time &lt;=#{endTimes}
+      <if test="logSign != null and logSign != ''">
+        and log_sign=#{logSign}
+      </if>
+    </where>
+    order by id desc
+  </select>
+
+  <select id="selectByLogSign" parameterType="com.leadmap.management.model.OperationLog" resultMap="BaseResultMap">
+    select * from  operation_log
+    <where>
+      <if test="logSign != null and logSign != ''">
+        and log_sign=#{logSign}
+      </if>
+    </where>
+    order by id desc
+  </select>
+
+</mapper>

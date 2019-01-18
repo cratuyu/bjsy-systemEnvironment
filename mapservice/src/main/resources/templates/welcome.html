@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width" />
+    <title>Welcome</title>
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vendor/metisMenu/metisMenu.min.css" rel="stylesheet" />
+    <link href="/dist/css/sb-admin-2.css" rel="stylesheet" />
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+    <link href="/dist/css/showInfo.css" rel="stylesheet" />
+</head>
+
+<body>
+<div id="wrapper">
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-lg-12" style="padding: 0">
+                <!--<h1 class="page-header">Welcome</h1>-->
+                <div id="container" style="width: 100%; height: 828px; position: relative; margin: auto">
+                    <!--<div id="text" class="info" style="width:335px; position:absolute; top: 10px; right: 45px; color: deepskyblue;z-index: 1;text-align: center;">-->
+                    <!--单击地图获取坐标-->
+                    <!--</div>-->
+
+                    <div class="gradeShow">
+                        <span style="width:60px;font-size: 18px;color: #000;">等级</span>
+                        <span style="background: green">一级</span>
+                        <span style="background: #EDCE2E">二级</span>
+                        <span style="background: #F98B2D">三级</span>
+                        <span style="background: #E82626">四级</span>
+                        <span style="background: #7F147D">五级</span>
+                        <span style="background: #A83026">六级</span>
+                    </div>
+                    <div class = "photoShow">
+                        <table>
+                            <tr>
+                                <td style="width: 110px; height: 50px;border-bottom: 1px solid #99B7D2;border-right: 1px solid #99B7D2;">
+                                    <img src="/1x/001.png" />
+                                    <div>
+                                        <span class="fontShow1">无数据</span>
+                                        <span class="fontShow2">紫外线指数</span>
+                                    </div>
+                                </td>
+                                <td style="width: 110px; height: 50px;border-bottom: 1px solid #99B7D2;border-right: 1px solid #99B7D2;">
+                                    <img src="/1x/002.png" />
+                                    <div>
+                                        <span class="fontShow1">无数据</span>
+                                        <span class="fontShow2">汽车指数</span>
+                                    </div>
+                                </td>
+                                <td style="width: 110px; height: 50px;border-bottom: 1px solid #99B7D2">
+                                    <img src="/1x/003.png" />
+                                    <div>
+                                        <span class="fontShow1">无数据</span>
+                                        <span class="fontShow2">穿衣指数</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 110px; height: 50px;border-right: 1px solid #99B7D2;">
+                                    <img src="/1x/004.png" />
+                                    <div >
+                                        <span class="fontShow1">无数据</span>
+                                        <span class="fontShow2">空气指数</span>
+                                    </div>
+                                </td>
+                                <td style="width: 110px; height: 50px;border-right: 1px solid #99B7D2;">
+                                    <img src="/1x/005.png" />
+                                    <div >
+                                        <span class="fontShow1">无数据</span>
+                                        <span class="fontShow2">健康指数</span>
+                                    </div>
+                                </td>
+                                <td style="width: 110px; height: 50px;">
+                                    <img src="/1x/006.png" />
+                                    <div >
+                                        <span class="fontShow1">无数据</span>
+                                        <span class="fontShow2">运动指数</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="airShow">
+                        <span style="border-right:1px solid #2E8E1F;background: #2E8E1F;color:white;border-radius:5px 0 0 5px;">AQI</span>
+                        <span style="border-right:1px solid #2E8E1F">PM2.5</span>
+                        <span style="border-right:1px solid #2E8E1F">PM10</span>
+                        <span style="border-right:1px solid #2E8E1F">SO2</span>
+                        <span style="border-right:1px solid #2E8E1F">NO2</span>
+                        <span style="border-right:1px solid #2E8E1F">O3</span>
+                        <span style="border-radius:0px 5px 5px 0px;">CO</span>
+                    </div>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/metisMenu/metisMenu.min.js"></script>
+<script src="/dist/js/sb-admin-2.js"></script>
+<script src="/urlLoader.js"></script>
+<!--&lt;!&ndash;&lt;!&ndash; 加载地图JSAPI脚本 &ndash;&gt;&ndash;&gt;-->
+<script src="https://webapi.amap.com/maps?v=1.4.11&amp;key=88220b2f28d847c8c727ecf42cd13f"></script>
+
+</body>
+<!--左边菜单控制切换右侧内容js-->
+<script>
+
+    var resultData = null;
+    var markers = [];
+    var infoWindows = [];
+
+    $(document).ready(function (e) {
+        // $(".menuc").click(function () {
+        //     var url = $(this).attr("url");
+        //     $("#iframecon").attr("src", url);
+        // });
+        map = new AMap.Map('container',{
+            resizeEnable: true, //是否监控地图容器尺寸变化
+            zoom:11, //初始化地图层级
+            center: [116.650, 40.130] //初始化地图中心点
+        });
+        // map.on('click', showInfoClick);
+        pointShow();
+        clickBind();
+    });
+
+    //构建自定义信息窗体
+    function createInfoWindow(item, air, level, airInfo, airIndex) {
+        var info = document.createElement("div");
+        info.className = "labelShow";
+
+        var titleD = document.createElement("p");
+
+        titleD.className = "placeShow";
+        titleD.innerHTML = item.stationName;
+        info.appendChild(titleD);
+        // info.appendChild(top);
+
+        var contentA = document.createElement("p");
+        contentA.className = "bottomPlaceShow";
+        contentA.innerHTML = airInfo + air;
+        info.appendChild(contentA);
+
+        var contentB = document.createElement("p");
+        contentB.className = "bottomPlaceShow";
+        contentB.innerHTML = airIndex + level;
+        info.appendChild(contentB);
+
+        var contentC = document.createElement("p");
+        contentC.className = "bottomPlaceShow";
+        var now = new Date();
+        /*<![CDATA[*/
+        var time = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate();
+        /*]]>*/
+        contentC.innerHTML = "监测日期: " + time;
+        info.appendChild(contentC);
+
+        // 定义底部三角形
+        var bottom = document.createElement("div");
+        bottom.className = "triangle";
+        info.appendChild(bottom);
+
+        var bottom1 = document.createElement("span");
+        bottom1.className = "triangle1";
+        info.appendChild(bottom1);
+
+        return info;
+    }
+
+    // function showInfoClick(e){
+    //     var text = '地图位置[ '+e.lnglat.getLng()+','+e.lnglat.getLat()+' ]';
+    //     document.querySelector("#text").innerText = text;
+    // }
+
+    function addPointMarker(item, content, level) {
+        var marker = new AMap.Marker({
+            position: [item.x, item.y],
+            // 设置图标偏移量
+            offset: new AMap.Pixel(-20, -50),
+            content:content
+        });
+        // marker.setTitle("id:"+item.stationId+" 微站名:"+item.stationName+" x:"+item.x+" y:"+item.y);
+        marker.setMap(map);
+        markers.push(marker);
+
+        var infoWindow = new AMap.InfoWindow({
+            isCustom: true,  //使用自定义窗体
+            content: createInfoWindow(item, item.airQualityIndexList[0].aqi, level, "空气指数AQI: ", "空气质量等级: "),
+            offset: new AMap.Pixel(0, -65)
+        });
+        AMap.event.addListener(marker, 'click', function () {
+            infoWindow.open(map, marker.getPosition());
+        });
+        infoWindows.push(infoWindow);
+    }
+
+    function addPointMarker1(item, content, infoWindow) {
+
+        var marker = new AMap.Marker({
+            position: [item.x, item.y],
+            // 设置图标偏移量
+            offset: new AMap.Pixel(-20, -50),
+            content:content
+        });
+        // marker.setTitle("id:"+item.stationId+" 微站名:"+item.stationName+" x:"+item.x+" y:"+item.y);
+        marker.setMap(map);
+        markers.push(marker);
+        AMap.event.addListener(marker, 'click', function () {
+            infoWindow.open(map, marker.getPosition());
+        });
+    }
+
+    function pointShow() {
+        // todo 发布时 更换公网ip  url 统一放置在urlLoader.js
+        var url1 = getFairsenseStationInfos;
+        var url2 = getAvenueWeatherInfo;
+        $.ajax({
+            type: 'get',
+            url:url2,
+            data:{x:1,y:1},
+            datatype:"json",
+            success:function (tempResult) {
+                if(tempResult.code == "200"){
+                    var arr = document.getElementsByClassName("fontShow1");
+                    var lifeIndexInfo = tempResult.data.avenueWeatherInfoList[0].lifeIndex;
+                    arr[0].innerText = lifeIndexInfo.ultravioletRaysLevel;
+                    arr[1].innerText = lifeIndexInfo.carWashLevel;
+                    arr[2].innerText = lifeIndexInfo.dressLevel;
+                    arr[3].innerText = lifeIndexInfo.airPollutionDispersionLevel;
+                    arr[4].innerText = lifeIndexInfo.coldLevel;
+                    arr[5].innerText = lifeIndexInfo.motionLevel;
+                }else{
+                    alert("获取顺义区天气指数失败")
+                }
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: url1,
+            data:{pageNumber:1,pageSize:100},
+            datatype: "json",
+            success:function(tempResult){
+                if(tempResult.code == "200"){
+                    resultData = tempResult;
+                    // 要展示的数据 根据 x坐标和y坐标 创建点标记
+                    $.each(tempResult.data.fairsenseStationInfoDTOList, function (i, item) {
+                        var arr = aqiLevel(item);
+                        addPointMarker(item, arr[0], arr[1]);
+                    });
+                }else{
+                    alert("获取微站数据失败")
+                }
+            }
+        });
+    }
+
+    jQuery.i18n.properties({
+        name:'application',// 资源文件名称
+        path:'resources/templates/',// 资源文件所在目录路径
+        mode:'Map',// 模式：变量或 Map
+        // language:'pt_PT',// 对应的语言
+        cache:false,
+        encoding: 'UTF-8',
+        callback: function() {// 回调方法
+            list()
+        }
+    });
+
+    function clickBind() {
+        var arr = $(".airShow span");
+        $.each(arr, function (i, item) {
+            arr[i].onclick = function () {
+                $.each(arr, function (i, item) {
+                    item.style.background = "#fff";
+                    item.style.color =  "#2E8E1F";
+                });
+                arr[i].style.background = "#2E8E1F";
+                arr[i].style.color = "#fff";
+                if(i == 0){
+                    map.remove(markers);
+                    $.each(resultData.data.fairsenseStationInfoDTOList, function (i, item) {
+                        var arr = aqiLevel(item);
+                        addPointMarker1(item, arr[0],infoWindows[i]);
+                        infoWindows[i].setContent(createInfoWindow(item, item.airQualityIndexList[0].aqi, arr[1], "空气指数AQI: ", "空气质量等级: "))
+                    })
+                }else if(i == 1){
+                    map.remove(markers);
+                    $.each(resultData.data.fairsenseStationInfoDTOList, function (i, item) {
+                        var arr = pm2_5Level(item);
+                        addPointMarker1(item, arr[0],infoWindows[i]);
+                        infoWindows[i].setContent(createInfoWindow(item, item.airQualityIndexList[0].pm2_5, arr[1], "空气指数PM2.5: ", "空气质量指数等级: "))
+                    })
+                }else if(i == 2){
+                    map.remove(markers);
+                    $.each(resultData.data.fairsenseStationInfoDTOList, function (i, item) {
+                        var arr = pm10Level(item);
+                        addPointMarker1(item, arr[0],infoWindows[i]);
+                        infoWindows[i].setContent(createInfoWindow(item, item.airQualityIndexList[0].pm10, arr[1], "空气指数PM10: ", "空气质量指数等级: "))
+                    })
+                }else if(i == 3){
+                    map.remove(markers);
+                    $.each(resultData.data.fairsenseStationInfoDTOList, function (i, item) {
+                        var arr = so2Level(item);
+                        addPointMarker1(item, arr[0],infoWindows[i]);
+                        infoWindows[i].setContent(createInfoWindow(item, item.airQualityIndexList[0].so2, arr[1], "空气指数SO2: ", "空气质量指数等级: "))
+                    })
+                }else if(i == 4){
+                    map.remove(markers);
+                    $.each(resultData.data.fairsenseStationInfoDTOList, function (i, item) {
+                        var arr = no2Level(item);
+                        addPointMarker1(item, arr[0],infoWindows[i]);
+                        infoWindows[i].setContent(createInfoWindow(item, item.airQualityIndexList[0].no2, arr[1], "空气指数NO2: ", "空气质量指数等级: "))
+                    })
+                }else if(i == 5){
+                    map.remove(markers);
+                    $.each(resultData.data.fairsenseStationInfoDTOList, function (i, item) {
+                        var arr = o3Level(item);
+                        addPointMarker1(item, arr[0],infoWindows[i]);
+                        infoWindows[i].setContent(createInfoWindow(item, item.airQualityIndexList[0].o3, arr[1], "空气指数O3: ", "空气质量指数等级: "))
+                    })
+                }else if (i == 6) {
+                    map.remove(markers);
+                    $.each(resultData.data.fairsenseStationInfoDTOList, function (i, item) {
+                        var arr = coLevel(item);
+                        addPointMarker1(item, arr[0],infoWindows[i]);
+                        infoWindows[i].setContent(createInfoWindow(item, item.airQualityIndexList[0].co, arr[1], "空气指数CO: ", "空气质量指数等级: "))
+                    })
+                }
+            }
+        })
+    }
+
+    function aqiLevel(item) {
+        var content = '<div class="custom-content-marker" style="position:relative;width:40px;height:50px;">' +
+            '<img src="/shunyi/.png" style="width:40px;height:50px;float:left" />' +
+            '<span class="airQuality" style="position:absolute;font-size: 18px;font-weight: 500;width:40px;height:50px;left:10px;top:5px">'
+            + item.airQualityIndexList[0].aqi +'</span>' +
+            '</div>';
+        var level = "";
+        /*<![CDATA[*/
+        var number = parseInt(item.airQualityIndexList[0].aqi);
+        if(number) {
+            if (number <= 50) {
+                content = content.replace("shunyi/.png", "shunyi/2_30.png");
+                level = "优";
+            } else if (50 < number && number <= 100) {
+                content = content.replace("shunyi/.png", "shunyi/2_32.png");
+                level = "良";
+            } else if (100 < number && number <= 150) {
+                content = content.replace("shunyi/.png", "shunyi/2_34.png");
+                level = "轻度污染";
+            } else if (150 < number && number<= 200) {
+                content = content.replace("shunyi/.png", "shunyi/2_34.png");
+                level = "中度污染";
+            } else if (200 < number && number<= 250) {
+                content = content.replace("shunyi/.png", "shunyi/2_28.png");
+                level = "重度污染";
+            } else {
+                content = content.replace("shunyi/.png", "shunyi/2_43.png");
+                level = "严重污染";
+            }
+        }else{
+            content = content.replace("shunyi/.png", "shunyi/2_43.png");
+        }
+        /*]]>*/
+        return [content, level]
+    }
+
+    function pm2_5Level(item) {
+        var content = '<div class="custom-content-marker" style="position:relative;width:40px;height:50px;">' +
+            '<img src="/shunyi/.png" style="width:40px;height:50px;float:left" />' +
+            '<span class="airQuality" style="position:absolute;font-size: 18px;font-weight: 500;width:40px;height:50px;left:10px;top:5px">'
+            + item.airQualityIndexList[0].pm2_5 +'</span>' +
+            '</div>';
+        var level = "";
+        var value = parseInt(item.airQualityIndexList[0].pm2_5);
+        /*<![CDATA[*/
+        if(value > 0 && value <= 35){
+            content = content.replace("shunyi/.png", "shunyi/2_30.png");
+            level = "优";
+        }else if(value > 35 && value <=70){
+            content = content.replace("shunyi/.png", "shunyi/2_32.png");
+            level = "良";
+        }else if(value > 70 && value <= 115){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "轻度污染";
+        }else if(value > 115 && value <= 150){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "中度污染";
+        }else if(value > 150 && value <= 250){
+            content = content.replace("shunyi/.png", "shunyi/2_28.png");
+            level = "重度污染";
+        }else{
+            content = content.replace("shunyi/.png", "shunyi/2_43.png");
+            level = "严重污染";
+        }
+        /*]]>*/
+        return [content, level];
+    }
+
+    function pm10Level(item) {
+        var content = '<div class="custom-content-marker" style="position:relative;width:40px;height:50px;">' +
+            '<img src="/shunyi/.png" style="width:40px;height:50px;float:left" />' +
+            '<span class="airQuality" style="position:absolute;font-size: 18px;font-weight: 500;width:40px;height:50px;left:10px;top:5px">'
+            + item.airQualityIndexList[0].pm10 +'</span>' +
+            '</div>';
+        var level = "";
+        var value = parseInt(item.airQualityIndexList[0].pm10);
+        /*<![CDATA[*/
+        if(value > 0 && value <= 50){
+            content = content.replace("shunyi/.png", "shunyi/2_30.png");
+            level = "优";
+        }else if(value > 50 && value <= 150){
+            content = content.replace("shunyi/.png", "shunyi/2_32.png");
+            level = "良";
+        }else if(value > 150 && value <= 250){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "轻度污染";
+        }else if(value > 250 && value <= 350){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "中度污染";
+        }else if(value > 350 && value <= 420){
+            content = content.replace("shunyi/.png", "shunyi/2_28.png");
+            level = "重度污染";
+        }else{
+            content = content.replace("shunyi/.png", "shunyi/2_43.png");
+            level = "严重污染";
+        }
+        /*]]>*/
+        return [content, level];
+    }
+
+    function so2Level(item){
+        var content = '<div class="custom-content-marker" style="position:relative;width:40px;height:50px;">' +
+            '<img src="/shunyi/.png" style="width:40px;height:50px;float:left" />' +
+            '<span class="airQuality" style="position:absolute;font-size: 18px;font-weight: 500;width:40px;height:50px;left:10px;top:5px">'
+            + item.airQualityIndexList[0].so2 +'</span>' +
+            '</div>';
+        var level = "";
+        var value = parseInt(item.airQualityIndexList[0].so2);
+        /*<![CDATA[*/
+        if(value > 0 && value <= 150){
+            content = content.replace("shunyi/.png", "shunyi/2_30.png");
+            level = "优";
+        }else if(value > 150 && value <=500){
+            content = content.replace("shunyi/.png", "shunyi/2_32.png");
+            level = "良";
+        }else if(value > 500 && value <= 650){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "轻度污染";
+        }else if(value > 650 && value <= 800){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "中度污染";
+        }else if(value > 800 && value <= 1600){
+            content = content.replace("shunyi/.png", "shunyi/2_28.png");
+            level = "重度污染";
+        }else{
+            content = content.replace("shunyi/.png", "shunyi/2_43.png");
+            level = "严重污染";
+        }
+        /*]]>*/
+        return [content, level];
+    }
+
+    function no2Level(item) {
+        var content = '<div class="custom-content-marker" style="position:relative;width:40px;height:50px;">' +
+            '<img src="/shunyi/.png" style="width:40px;height:50px;float:left" />' +
+            '<span class="airQuality" style="position:absolute;font-size: 18px;font-weight: 500;width:40px;height:50px;left:10px;top:5px">'
+            + item.airQualityIndexList[0].no2 +'</span>' +
+            '</div>';
+        var level = "";
+        var value = parseInt(item.airQualityIndexList[0].no2);
+        /*<![CDATA[*/
+        if(value > 0 && value <= 100){
+            content = content.replace("shunyi/.png", "shunyi/2_30.png");
+            level = "优";
+        }else if(value > 100 && value <= 200){
+            content = content.replace("shunyi/.png", "shunyi/2_32.png");
+            level = "良";
+        }else if(value > 200 && value <= 700){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "轻度污染";
+        }else if(value > 700 && value <= 1200){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "中度污染";
+        }else if(value > 1200 && value <= 2340){
+            content = content.replace("shunyi/.png", "shunyi/2_28.png");
+            level = "重度污染";
+        }else{
+            content = content.replace("shunyi/.png", "shunyi/2_43.png");
+            level = "严重污染";
+        }
+        /*]]>*/
+        return [content, level];
+    }
+
+    function o3Level(item) {
+        var content = '<div class="custom-content-marker" style="position:relative;width:40px;height:50px;">' +
+            '<img src="/shunyi/.png" style="width:40px;height:50px;float:left" />' +
+            '<span class="airQuality" style="position:absolute;font-size: 18px;font-weight: 500;width:40px;height:50px;left:10px;top:5px">'
+            + item.airQualityIndexList[0].o3 +'</span>' +
+            '</div>';
+        var level = "";
+        var value = parseInt(item.airQualityIndexList[0].o3);
+        /*<![CDATA[*/
+        if(value > 0 && value <= 160){
+            content = content.replace("shunyi/.png", "shunyi/2_30.png");
+            level = "优";
+        }else if(value > 160 && value <= 200){
+            content = content.replace("shunyi/.png", "shunyi/2_32.png");
+            level = "良";
+        }else if(value > 200 && value <= 300){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "轻度污染";
+        }else if(value > 300 && value <= 400){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "中度污染";
+        }else if(value > 400 && value <= 800){
+            content = content.replace("shunyi/.png", "shunyi/2_28.png");
+            level = "重度污染";
+        }else{
+            content = content.replace("shunyi/.png", "shunyi/2_43.png");
+            level = "严重污染";
+        }
+        /*]]>*/
+        return [content, level];
+    }
+    function coLevel(item) {
+        var content = '<div class="custom-content-marker" style="position:relative;width:40px;height:50px;">' +
+            '<img src="/shunyi/.png" style="width:40px;height:50px;float:left" />' +
+            '<span class="airQuality" style="position:absolute;font-size: 14px;font-weight: 500;width:40px;height:50px;left:6px;top:8px">'
+            + item.airQualityIndexList[0].co +'</span>' +
+            '</div>';
+        var level = "";
+        var value = parseFloat(item.airQualityIndexList[0].co);
+        /*<![CDATA[*/
+        if(value > 0 && value <= 5){
+            content = content.replace("shunyi/.png", "shunyi/2_30.png");
+            level = "优";
+        }else if(value > 5 && value <=10){
+            content = content.replace("shunyi/.png", "shunyi/2_32.png");
+            level = "良";
+        }else if(value > 10 && value <= 35){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "轻度污染";
+        }else if(value > 35 && value <= 60){
+            content = content.replace("shunyi/.png", "shunyi/2_34.png");
+            level = "中度污染";
+        }else if(value > 60 && value <= 90){
+            content = content.replace("shunyi/.png", "shunyi/2_28.png");
+            level = "重度污染";
+        }else{
+            content = content.replace("shunyi/.png", "shunyi/2_43.png");
+            level = "严重污染";
+        }
+        /*]]>*/
+        return [content, level];
+    }
+</script>
+
+</html>

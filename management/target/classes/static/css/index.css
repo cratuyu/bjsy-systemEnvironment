@@ -1,0 +1,19 @@
+table > tbody > tr > td:nth-of-type(6) {
+    width: 200px !important;
+}
+table > thead > tr > th:nth-of-type(6) {
+    width: 200px !important;
+}
+.modal_edit {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+.edit_content {
+    margin: 0 auto;
+    width: 50%;
+    height: 400px;
+    background-color: #fff;
+}

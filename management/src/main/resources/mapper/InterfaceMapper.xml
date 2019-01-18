@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leadmap.management.mapper.InterfaceMapper">
+  <resultMap id="BaseResultMap" type="com.leadmap.management.model.InterfaceAccess">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="count" jdbcType="BIGINT" property="count" />
+    <result column="create_time" jdbcType="DATE" property="createTime" />
+    <result column="diff_time" jdbcType="BIGINT" property="diffTime" />
+    <result column="interface_address" jdbcType="VARCHAR" property="interfaceAddress" />
+    <result column="interface_name" jdbcType="VARCHAR" property="interfaceName" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+  <select id="selectByInterface" parameterType="com.leadmap.management.model.InterfaceAccess" resultMap="BaseResultMap">
+    select * from  interface_access
+    <where>
+      update_time &gt;=#{beginTimes}
+      and  update_time &lt;=#{endTimes}
+    </where>
+    order by id desc
+  </select>
+
+  <select id="selectAllInterface" parameterType="com.leadmap.management.model.InterfaceAccess" resultMap="BaseResultMap">
+    select * from  interface_access order by id desc
+  </select>
+
+</mapper>

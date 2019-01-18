@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>顺义用户登录详情</title>
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/vendor/metisMenu/metisMenu.min.css" rel="stylesheet"/>
+    <link href="/dist/css/sb-admin-2.css" rel="stylesheet"/>
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <style type="text/css">
+        #wrapper {
+            width: 97%;
+            margin: auto;
+            overflow: auto;
+        }
+        #page_div{
+            text-align:center;
+            padding-top:4px;
+            padding-bottom:4px;
+            /*margin-top:10%;*/
+        }
+        .button{
+            position:absolute;
+            left:200px;
+            /*top:3px;*/
+        }
+    </style>
+</head>
+<body style="height: 900px;overflow: auto;">
+<div id="wrapper" >
+    <div id="container-fluid" style="width:1550px">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header" style="margin: 20px 20px 20px">查看用户登录详情</h2></div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <label class="control-label">登录设备:</label>
+                        <select id="agent-search"  class="form-control">
+                            <option value="">全部</option>
+                            <option value="Android移动客户端">Android移动客户端</option>
+                            <option value="iPhone移动客户端">iPhone移动客户端</option>
+                            <option value="其他客户端">其他客户端</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">时间:</label>
+                        <select id="time-search"  class="form-control">
+                            <option value="">全部</option>
+                            <option value="今日">今日</option>
+                            <option value="近七日">近七日</option>
+                            <option value="近一月">近一月</option>
+                        </select>
+                    </div>
+                    <button type="button"  onclick="search();" class="btn btn-primary">查询</button>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">列表</div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <table width="100%" class="table table-striped table-bordered table-hover">
+                            <thead>
+                            <tr >
+                                <th>id</th>
+                                <th>用户名</th>
+                                <th>用户ip</th>
+                                <th>登录时间</th>
+                                <th>登录设备</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="page_div" >
+                        <input type="button" value="首页" class="btn btn-default" onclick="showPage(0)" />
+                        <input type="button" value="上一页" class="btn btn-default" onclick="showPage(pageNum-1)" />
+                        <input type="button" value="下一页" class="btn btn-default" onclick="showPage(pageNum+1)" />
+                        <input type="button" value="尾页" class="btn btn-default" onclick="showPage(pageCount)"   />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/metisMenu/metisMenu.min.js"></script>
+<script src="/dist/js/sb-admin-2.js"></script>
+<script>
+    pageNum = 0;
+    pageCount = 0;
+    $(document).ready(function() {
+        $("#wrapper").height((document.body.clientHeight)*0.9);
+        list();
+        $(".button").bind("click", function() {
+            list();
+        });
+    });
+
+    function list(){
+        var time = $('#time-search').val();
+        var agent = $("#agent-search").val();
+        var url = "/ipInfoList";
+        $.ajax({
+            type:'post',
+            url:url,
+            datatype: "json",
+            data:{"pageNum":0, "time":time,"agent":agent},
+            success:function(result){
+                $("#table").children().remove();
+                if(result.data.length>0){
+                    pageCount = result.recordCount;
+                    var html = "";
+                    $.each(result.data, function(i, item) {
+                        item.updateTime = item.updateTime.replace(".0","");
+                        html = html + "<tr>"
+                            + "<td>" + item.id + "</td>"
+                            + "<td>" + item.userName + "</td>"
+                            + "<td>" + item.ip + "</td>"
+                            + "<td>" + item.updateTime + "</td>"
+                            + "<td>" + item.userAgent + "</td>"
+                            + "</tr>";
+                    });
+                    $("#table").append(html);
+                }
+            },
+            error:function(){
+                alert("请求错误");
+            }
+        });
+    }
+
+    function showPage(count) {
+        /*<![CDATA[*/
+        if(count <= 0){
+            pageNum = 0;
+        }else{
+            pageNum = count;
+        }
+        /*]]>*/
+        var time = $('#time-search').val();
+        var agent = $("#agent-search").val();
+        var url = "/ipInfoList";
+        $.ajax({
+            type:'post',
+            url:url,
+            datatype: "json",
+            data:{"pageNum":pageNum,"time":time,"agent":agent},
+            success:function(result){
+                if(result.data.length>0){
+                    pageCount = result.recordCount;
+                    $("#table").children().remove();
+                    var html = "";
+                    $.each(result.data, function(i, item) {
+                        item.updateTime = item.updateTime.replace(".0","");
+                        html = html + "<tr>"
+                            + "<td>" + item.id + "</td>"
+                            + "<td>" + item.userName + "</td>"
+                            + "<td>" + item.ip + "</td>"
+                            + "<td>" + item.updateTime + "</td>"
+                            + "<td>" + item.userAgent + "</td>"
+                            + "</tr>";
+                    });
+                    $("#table").append(html);
+                }else{
+                    pageNum = pageNum - 1 ;
+                    alert("没有更多数据了")
+                }
+            },
+            error:function(){
+                alert("请求错误");
+            }
+        })
+    }
+
+    function search(){
+        list();
+    }
+</script>
+</body>
+</html>

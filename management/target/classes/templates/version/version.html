@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/jquery.dataTables.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/matrix-style.css}" />
+    <link rel="stylesheet" th:href="@{/css/matrix-media.css}" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+    <title>版本管理</title>
+    <style>
+        #menu ul ul {
+            display: none;
+        }
+        #menu ul:nth-of-type(3) ul{
+            display: block ;
+        }
+        #menu ul:nth-of-type(3) ul .active a{
+            color: #fff !important;
+        }
+    </style>
+</head>
+
+
+<script>
+    window.onload = function(){
+        function getDate(){
+            // debugger;
+            var today = new Date();
+            var date;
+            date = (today.getFullYear()) +"-" + (today.getMonth() + 1 ) + "-" + today.getDate() + " " + today.getHours()+":"+today.getMinutes()+":"+today.getSeconds();
+            return date;
+        }
+        document.getElementById("updateTime").value=getDate();
+    }
+</script>
+
+<body>
+
+<!--Header-part-->
+<div id="header">
+    <h1><a href="dashboard.html">Matrix Admin</a></h1>
+</div>
+<!--close-Header-part-->
+
+<!--top-Header-menu-->
+<div th:include="common/top :: top"></div>
+<div th:include="common/menu :: menu"></div>
+
+<div id="content">
+    <!--<div id="content-header">-->
+        <!--<div id="breadcrumb"> <a href="#" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="#" class="current">Tables</a> </div>-->
+    <!--</div>-->
+    <div class="container-fluid">
+        <hr>
+        <div class="row-fluid">
+            <div class="span12">
+
+                <div class="widget-box">
+                    <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
+                        <h5>版本列表</h5>
+                    </div>
+                    <form class="form-inline">
+                        <button type="button" shiro:hasPermission="/versions/add" onclick="$('#resourcesModal').modal();" class="btn btn-info" style="float: right; margin-right: 1px;">新增</button>
+                        <button type="button" shiro:hasPermission="/versions/delete" onclick="delById();" class="btn btn-info" style="float: right; margin-right: 1px;">删除</button>
+                    </form>
+                    <table class="table table-bordered data-table" id="datatable" >
+                        <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" class="checkall" />
+                            </th>
+                            <th>ID</th>
+                            <th>版本号</th>
+                            <th>平台</th>
+                            <th>是否强制升级</th>
+                            <th>版本描述</th>
+                            <th>版本下载地址</th>
+                            <th>更新时间</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!--弹框-->
+<div class="modal fade bs-example-modal-sm"  id="selectResources" tabindex="-1" role="dialog" aria-labelledby="selectRoleLabel">
+    <div class="modal-dialog modal-sm" role="document" style="height: 600px; "  >
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="selectRoleLabel">分配权限</h4>
+            </div>
+            <div class="modal-body">
+                <form id="boxRoleForm" >
+                    <ul id="treeDemo" class="ztree"></ul>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="saveRoleResources();" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--添加弹框-->
+<div class="modal fade" id="resourcesModal" tabindex="-1" role="dialog" aria-labelledby="addroleLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addroleLabel">添加版本</h4>
+            </div>
+            <div class="modal-body">
+                <form id="versionsForm">
+                    <div class="form-group">
+                        <label  class="control-label">版本号:</label>
+                        <input type="text" class="form-control" name="versionName" id="versionName" placeholder="请输入版本号"/>
+                    </div>
+                    <div class="form-group">
+                        <label  class="control-label">平台编号:</label>
+                        <select class="form-control" name="versionPlatform" id="versionPlatform" >
+                            <option value="IOS">IOS</option>
+                            <option value="Android">Android</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label  class="control-label">是否强制升级:</label>
+                        <select class="form-control" name="isForceUpdata" id="isForceUpdata" >
+                            <option value="0">不强制升级</option>
+                            <option value="1">强制升级</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">版本描述:</label>
+                        <input type="text" class="form-control" id="versionDesc" name="versionDesc"  placeholder="请输入版本描述">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">版本下载地址:</label>
+                        <input type="text" class="form-control" id="versionUrl" name="versionUrl"  placeholder="请输入版本下载地址">
+                    </div>
+                    <!--<div class="form-group">-->
+                        <!--<label class="control-label">更新时间:</label>-->
+                        <!--<input type="text" class="form-control" id="updateTime" name="updateTime"  placeholder="请输入更新时间">-->
+                    <!--</div>-->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="addResources();" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/添加弹框-->
+
+
+
+<!--Footer-part-->
+<div class="row-fluid">
+    <div id="footer" class="span12"> 2017 &copy; yqj <a href="http://themedesigner.in/">Themedesigner.in</a> </div>
+</div>
+<!--end-Footer-part-->
+<script type="text/javascript" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}" th:sr></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script th:src="@{/js/layer.js}"></script>
+<script type="text/javascript">
+    var table;
+    $(".checkall").click(function () {
+        var check = $(this).prop("checked");
+        $(".checkchild").prop("checked", check);
+    });
+    $(document).ready(function() {
+        table = $('#datatable').DataTable( {
+            "dom": '<"top"i>rt<"bottom"flp><"clear">',
+            "searching" : false,
+            "bJQueryUI": true,
+            "sPaginationType": "full_numbers",
+            "serverSide": true,//开启服务器模式，使用服务器端处理配置datatable
+            "processing": true,//开启读取服务器数据时显示正在加载中……特别是大数据量的时候，开启此功能比较好
+
+            "ajax": 'versions',
+            "columns": [
+                {
+                    "sClass": "text-center",
+                    "data": "id",
+                    "render": function (data, type, full, meta) {
+                        return '<input type="checkbox"  class="checkchild"  value="' + data + '" />';
+                    },
+                    "bSortable": false
+                },
+                { "data": "id" },
+                { "data": "versionName" },
+                { "data": "versionPlatform" },
+                { "data": "isForceUpdata" },
+                { "data": "versionDesc" },
+                { "data": "versionUrl" },
+                { "data": "updateTime" },
+            ],
+            columnDefs:[
+                { "orderable": false, "targets": 1 },
+                { "orderable": false, "targets": 2 },
+                { "orderable": false, "targets": 3 },
+                {
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        if(data==0){
+                            return "不强制升级";
+                        }else if(data==1){
+                            return "强制升级";
+                        }else{
+                            return "其他";
+                        }
+                    },
+                    "targets": 4
+                },
+                { "orderable": false, "targets": 5 },
+                { "orderable": false, "targets": 6 },
+                {
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        return timestampToTime(data);
+                    },
+                    "targets": 7
+                }
+            ],
+            language: {
+                "sProcessing":   "处理中...",
+                "sLengthMenu":   "显示 _MENU_ 项结果",
+                "sZeroRecords":  "没有匹配结果",
+                "sInfo":         "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                "sInfoEmpty":    "显示第 0 至 0 项结果，共 0 项",
+                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                "sInfoPostFix":  "",
+                "sSearch":       "搜索:",
+                "sUrl":          "",
+                "sEmptyTable":     "表中数据为空",
+                "sLoadingRecords": "载入中...",
+                "sInfoThousands":  ",",
+                "oPaginate": {
+                    "sFirst":    "首页",
+                    "sPrevious": "上页",
+                    "sNext":     "下页",
+                    "sLast":     "末页"
+                },
+                "oAria": {
+                    "sSortAscending":  ": 以升序排列此列",
+                    "sSortDescending": ": 以降序排列此列"
+                }
+            }
+        } );
+
+    } );
+
+    //时间戳转换成时间
+    function timestampToTime(timestamp) {
+        var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+        var D = change(date.getDate()) + ' ';
+        var h = change(date.getHours()) + ':';
+        var m = change(date.getMinutes()) + ':';
+        var s = change(date.getSeconds());
+        return Y+M+D+h+m+s;
+    }
+    function change(t) {
+        if (t < 10) {
+            return "0" + t;
+        } else {
+            return t;
+        }
+    }
+
+    function search(){
+        table.ajax.reload();
+    }
+
+    //添加用户
+    function addResources() {
+        var versionName = $("#versionName").val();
+        var versionPlatform = $("#versionPlatform").val();
+        var isForceUpdata = $("#isForceUpdata").val();
+        var versionDesc = $("#versionDesc").val();
+        var versionUrl = $("#versionUrl").val();
+        // var updateTime = $("#updateTime").val();
+
+        if(versionName == "" || versionName == undefined || versionName == null){
+            return layer.msg('版本号不能为空', function(){
+                //关闭后的操作
+            });
+        }
+        if(versionPlatform == "" || versionPlatform == undefined || versionPlatform == null){
+            return layer.msg('平台编号不能为空', function(){
+                //关闭后的操作
+            });
+        }
+        if(isForceUpdata == "" || isForceUpdata == undefined || isForceUpdata == null){
+            return layer.msg('是否强制升级不能为空', function(){
+                //关闭后的操作
+            });
+        }
+        if(versionDesc == "" || versionDesc == undefined || versionDesc == null){
+            return layer.msg('版本描述不能为空', function(){
+                //关闭后的操作
+            });
+        }
+        if(versionUrl == "" || versionUrl == undefined || versionUrl == null){
+            return layer.msg('版本下载地址不能为空', function(){
+                //关闭后的操作
+            });
+        }
+        // if(updateTime == "" || updateTime == undefined || updateTime == null){
+        //     return layer.msg('更新时间不能为空', function(){
+        //         //关闭后的操作
+        //     });
+        // }
+
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url:'versions/add',
+            data:$('#versionsForm').serialize(),// 你的formid
+            async: false,
+            success: function(data) {
+                if(data=="success"){
+                    layer.msg('保存成功');
+                    table.ajax.reload();
+                    $('#resourcesModal').modal('hide');
+                }else{
+                    layer.msg('保存失败');
+                    $('#resourcesModal').modal('hide');
+                }
+            }
+        });
+    }
+
+    function delById() {
+        var id = $(".checkchild:checked").val();
+        if ($(".checkchild:checked").length < 1)
+        {
+            layer.msg('请选择一条数据');
+            return;
+        }
+        if ($(".checkchild:checked").length > 1)
+        {
+            layer.msg('一次只能修改一条数据');
+            return;
+        }
+        layer.confirm('您确定要删除该资源吗？', {
+            btn: ['确认','取消'] //按钮
+        }, function(){
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url:'versions/delete',
+                data:{id:id},
+                async: false,
+                success: function(data) {
+                    if(data=="success"){
+                        layer.msg('删除成功');
+                        table.ajax.reload();
+                    }else{
+                        layer.msg('删除失败');
+                    }
+                }
+            });
+        });
+
+    }
+
+
+</script>
+
+</body>
+</html>

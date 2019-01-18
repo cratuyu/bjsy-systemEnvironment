@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leadmap.management.mapper.OpinionFeedbackReplyMapper">
+  <resultMap id="BaseResultMap" type="com.leadmap.management.model.OpinionFeedbackInfoReply">
+
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="op_feed_id" jdbcType="VARCHAR" property="opFeedId" />
+
+  </resultMap>
+
+  <select id="addOpinionFeedbackReply" resultType="com.leadmap.management.model.OpinionFeedbackInfoReply">
+     insert into opinion_feedback_info_reply values(#{id} ,#{content} ,#{createTime} ,#{opFeedId})
+  </select>
+
+</mapper>

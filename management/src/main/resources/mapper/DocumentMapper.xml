@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leadmap.management.mapper.DocumentMapper">
+  <resultMap id="BaseResultMap" type="com.leadmap.management.model.DocumentInfo">
+
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="publish_date" jdbcType="VARCHAR" property="publishDate" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="document_url" jdbcType="VARCHAR" property="documentUrl" />
+    <result column="publisher" jdbcType="VARCHAR" property="publisher" />
+    <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
+
+  </resultMap>
+
+  <select id="selectByDocument" parameterType="com.leadmap.management.model.DocumentInfo" resultMap="BaseResultMap">
+    select * from  document_info
+    <where>
+      create_time &gt;=#{beginTimes}
+      and  create_time &lt;=#{endTimes}
+      <if test="title != null and title != ''">
+        and title like CONCAT('%',#{title},'%')
+      </if>
+      <if test="type != null and type != ''">
+        and type=#{type}
+      </if>
+    </where>
+    order by id desc
+  </select>
+
+  <select id="selectByTitleAndType" parameterType="com.leadmap.management.model.DocumentInfo" resultMap="BaseResultMap">
+    select * from  document_info
+    <where>
+      <if test="title != null and title != ''">
+        and title like CONCAT('%',#{title},'%')
+      </if>
+      <if test="type != null and type != ''">
+        and type=#{type}
+      </if>
+    </where>
+    order by id desc
+  </select>
+
+  <select id="insertDocumentInfo" resultType="com.leadmap.management.model.DocumentInfo">
+     insert into document_info values(null ,null ,#{documentUrl} ,#{imageUrl} ,#{publishDate},#{publisher},#{title} ,#{type},#{createTime})
+  </select>
+
+  <select id="updateDocumentInfo" resultType="com.leadmap.management.model.DocumentInfo">
+     update document_info set  document_url=#{documentUrl} ,image_url=#{imageUrl} ,publish_date=#{publishDate},publisher=#{publisher},title=#{title} ,type=#{type},create_time=#{createTime}  where id=#{id}
+  </select>
+
+  <select id="selectDocumentById" resultType="java.lang.Long" parameterType="com.leadmap.management.model.DocumentInfo" resultMap="BaseResultMap">
+    select * from  document_info where id=#{id}
+  </select>
+</mapper>

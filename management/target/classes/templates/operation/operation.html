@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/jquery.dataTables.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/matrix-style.css}" />
+    <link rel="stylesheet" th:href="@{/css/matrix-media.css}" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+    <title>管理员日志管理</title>
+    <style>
+         .text-center {
+             display: none !important;
+         }
+         #menu ul ul {
+             display: none;
+         }
+         #menu ul:nth-of-type(5) ul{
+             display: block ;
+         }
+         #menu ul:nth-of-type(5) ul .active a{
+             color: #fff !important;
+         }
+    </style>
+</head>
+
+<body>
+
+<!--Header-part-->
+<div id="header">
+    <h1><a href="dashboard.html">Matrix Admin</a></h1>
+</div>
+<!--close-Header-part-->
+
+<!--top-Header-menu-->
+<div th:include="common/top :: top"></div>
+<div th:include="common/menu :: menu"></div>
+
+<div id="content">
+    <!--<div id="content-header">-->
+        <!--<div id="breadcrumb"> <a href="#" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="#" class="current">Tables</a> </div>-->
+    <!--</div>-->
+    <div class="container-fluid">
+        <hr>
+        <div class="row-fluid">
+            <div class="span12">
+
+                <div class="widget-box">
+                    <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
+                        <h5>管理员日志详情</h5>
+                    </div>
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label >开始时间:</label>
+                            <input type="date" class="form-control" id="beginTime-search" placeholder="开始时间:"/>
+                        </div>
+                        <div class="form-group">
+                            <label >结束时间:</label>
+                            <input type="date" class="form-control" id="endTime-search" placeholder="结束时间"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">日志类型:</label>
+                            <select id="loginSign-search"  class="form-control">
+                                <option value="">全部</option>
+                                <option value="操作日志">操作日志</option>
+                                <option value="异常日志">异常日志</option>
+                            </select>
+                        </div>
+                        <button type="button"  onclick="search();" class="btn btn-primary">查询</button>
+
+                        <!--<button type="button" shiro:hasPermission="/versions/add" onclick="$('#resourcesModal').modal();" class="btn btn-info" style="float: right; margin-right: 1px;">新增</button>-->
+                        <!--<button type="button" shiro:hasPermission="/versions/delete" onclick="delById();" class="btn btn-info" style="float: right; margin-right: 1px;">删除</button>-->
+                    </form>
+                    <table class="table table-bordered data-table" id="datatable" >
+                        <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" class="checkall" />
+                            </th>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>用户IP</th>
+                            <th>方法名称</th>
+                            <th>日志名称</th>
+                            <th>日志类型</th>
+                            <th>创建时间</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!--Footer-part-->
+<div class="row-fluid">
+    <!--<div id="footer" class="span12"> 2017 &copy; yqj <a href="http://themedesigner.in/">Themedesigner.in</a> </div>-->
+</div>
+<!--end-Footer-part-->
+<script type="text/javascript" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}" th:sr></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script th:src="@{/js/layer.js}"></script>
+<script type="text/javascript">
+    var table;
+    $(".checkall").click(function () {
+        var check = $(this).prop("checked");
+        $(".checkchild").prop("checked", check);
+    });
+    $(document).ready(function() {
+        table = $('#datatable').DataTable( {
+            "dom": '<"top"i>rt<"bottom"flp><"clear">',
+            "searching" : false,
+            "bJQueryUI": true,
+            "sPaginationType": "full_numbers",
+            "serverSide": true,//开启服务器模式，使用服务器端处理配置datatable
+            "processing": true,//开启读取服务器数据时显示正在加载中……特别是大数据量的时候，开启此功能比较好
+
+            // "ajax": 'operations',
+            ajax : function(data, callback, settings) {
+                //封装请求参数
+                var param = getOperationLog(data);
+
+                $.ajax({
+                    type: "GET",
+                    url: 'operations',
+                    cache : false,  //禁用缓存
+                    data: param,    //传入已封装的参数
+                    dataType: "json",
+                    success: function(result) {
+                        //封装返回数据  如果参数相同，可以直接返回result ，此处作为学习，先这么写了。
+                        var returnData = {};
+                        returnData.draw = result.draw;//这里直接自行返回了draw计数器,应该由后台返回
+                        returnData.recordsTotal = result.recordsTotal;//总记录数
+                        returnData.recordsFiltered = result.recordsFiltered;//后台不实现过滤功能，每次查询均视作全部结果
+                        returnData.data = result.data;
+                        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+                        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+                        callback(returnData);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert("查询失败");
+                    }
+                });
+            },
+            "columns": [
+                {
+                    "sClass": "text-center ",
+                    "data": "id",
+                    "render": function (data, type, full, meta) {
+                         return '<input style="display:none" type="checkbox"  class="checkchild"  value="' + data + '" />';
+                    },
+                    "bSortable": false
+                },
+                { "data": "id" },
+                { "data": "userName" },
+                { "data": "ip" },
+                { "data": "methodName" },
+                { "data": "logName" },
+                { "data": "logSign" },
+                { "data": "createTime" },
+            ],
+            columnDefs:[
+                { "orderable": false, "targets": 1 },
+                { "orderable": false, "targets": 2 },
+                { "orderable": false, "targets": 3 },
+                {
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        if(data=="com.leadmap.management.controller.HomeController.forbidden"){
+                            return "无权限";
+                        }else if(data=="com.leadmap.management.controller.ResourcesController.loadMenu"){
+                            return "获取资源菜单列表";
+                        }else if(data=="com.leadmap.management.controller.HomeController.usersPage"){
+                            return "用户管理";
+                        }else if(data=="com.leadmap.management.controller.UserController.getAll"){
+                            return "获取用户列表";
+                        }else if(data=="com.leadmap.management.controller.HomeController.documentPage"){
+                            return "资讯管理";
+                        }else if(data=="com.leadmap.management.controller.DocumentController.getAll"){
+                            return "获取资讯列表";
+                        }else if(data=="com.leadmap.management.controller.DocumentController.add"){
+                            return "添加资讯";
+                        }else if(data=="com.leadmap.management.controller.DocumentController.delete"){
+                            return "删除资讯";
+                        }else if(data=="com.leadmap.management.controller.HomeController.versionPage"){
+                            return "版本管理";
+                        }else if(data=="com.leadmap.management.controller.VersionInfoController.getAll"){
+                            return "获取版本列表";
+                        }else if(data=="com.leadmap.management.controller.DocumentController.add"){
+                            return "添加版本";
+                        }else if(data=="com.leadmap.management.controller.DocumentController.delete"){
+                            return "删除版本";
+                        }else if(data=="com.leadmap.environmentalrotection.web.controller.AirController.getCountryMonitorAirCompanyInfos"){
+                            return "获取企业废气信息";
+                        }else if(data=="com.leadmap.environmentalrotection.web.controller.VersionController.getCheckUpdate"){
+                            return "版本更新";
+                        }else if(data=="com.leadmap.environmentalrotection.web.controller.AirController.getAvenueWeatherInfo"){
+                            return "获取当天街道天气信息";
+                        }else if(data=="com.leadmap.management.controller.HomeController.opinionPage"){
+                            return "意见反馈";
+                        }else if(data=="com.leadmap.environmentalrotection.web.controller.UserController.getSMSVerificationCode"){
+                            return "获取手机短信验证码";
+                        }else if(data=="com.leadmap.environmentalrotection.web.controller.UserController.addUser"){
+                            return "用户注册";
+                        }else if(data=="com.leadmap.environmentalrotection.web.controller.UserController.postOpinionFeedback"){
+                            return "意见反馈";
+                        }else if(data=="com.leadmap.management.controller.OpinionFeedbackController.getAll"){
+                            return "获取意见反馈列表";
+                        }else if(data=="com.leadmap.management.controller.OpinionFeedbackController.delete"){
+                            return "删除意见反馈";
+                        }else if(data=="com.leadmap.management.controller.HomeController.interfacePage"){
+                            return "用户操作报表";
+                        }else if(data=="com.leadmap.management.controller.HomeController.ipInfoPage"){
+                            return "用户登录报表";
+                        }else if(data=="com.leadmap.management.controller.IpInfoController.getAll"){
+                            return "获取用户登录详情";
+                        }else if(data=="com.leadmap.management.controller.InterfaceController.getAll"){
+                            return "用户操作详情";
+                        }else if(data=="com.leadmap.management.controller.HomeController.operationPage"){
+                            return "日志管理";
+                        }else if(data=="com.leadmap.management.controller.OperationLogController.getAll"){
+                            return "获取日志详情";
+                        }else if(data=="com.leadmap.management.controller.RoleController.rolesWithSelected"){
+                            return "获取权限列表";
+                        }else if(data=="com.leadmap.management.controller.UserController.add"){
+                            return "添加用户";
+                        }else if(data=="com.leadmap.management.controller.UserController.saveUserRoles"){
+                            return "保存用户角色";
+                        }else if(data=="com.leadmap.management.controller.HomeController.rolesPage"){
+                            return "角色管理";
+                        }else if(data=="com.leadmap.management.controller.RoleController.getAll"){
+                            return "获取角色详情";
+                        }else if(data=="com.leadmap.management.controller.RoleController.saveRoleResources"){
+                            return "保存角色资源关联";
+                        }else if(data=="com.leadmap.management.controller.ResourcesController.resourcesWithSelected"){
+                            return "获取资源列表";
+                        }else if(data=="com.leadmap.management.controller.HomeController.resourcesPage"){
+                            return "资源管理";
+                        }else if(data=="com.leadmap.management.controller.ResourcesController.getAll"){
+                            return "获取资源详情";
+                        }else if(data=="com.leadmap.management.controller.VersionInfoController.delete"){
+                            return "删除版本";
+                        }else if(data=="com.leadmap.management.controller.HomeController.usersInfoPage"){
+                            return "用户日增报表";
+                        }else if(data=="com.leadmap.management.controller.UserInfoController.getAll"){
+                            return "用户一周用户注册量";
+                        }else if(data=="com.leadmap.management.controller.UserInfoController.getAllUserInfo"){
+                            return "获取一月用户注册量";
+                        }else if(data=="com.leadmap.management.controller.HomeController.ipPage"){
+                            return "用户日活报表";
+                        }else if(data=="com.leadmap.management.controller.IpInfoController.getAll"){
+                            return "获取用户登录详情";
+                        }else if(data=="com.leadmap.management.controller.IpInfoController.getWeekIpInfoweekIpInfo"){
+                            return "获取一周日活";
+                        }else if(data=="com.leadmap.management.controller.IpInfoController.getMonthIpInfo"){
+                            return "获取一月用户活跃度";
+                        }else if(data==null){
+                            return "异常";
+                        }else {
+                            return "其它！";
+                        }
+                    },
+                    "targets": 4
+                },
+                { "orderable": false, "targets": 5 },
+                { "orderable": false, "targets": 6 },
+                {
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        return timestampToTime(data);
+                    },
+                    "targets": 7
+                }
+            ],
+            language: {
+                "sProcessing":   "处理中...",
+                "sLengthMenu":   "显示 _MENU_ 项结果",
+                "sZeroRecords":  "没有匹配结果",
+                "sInfo":         "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                "sInfoEmpty":    "显示第 0 至 0 项结果，共 0 项",
+                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                "sInfoPostFix":  "",
+                "sSearch":       "搜索:",
+                "sUrl":          "",
+                "sEmptyTable":     "表中数据为空",
+                "sLoadingRecords": "载入中...",
+                "sInfoThousands":  ",",
+                "oPaginate": {
+                    "sFirst":    "首页",
+                    "sPrevious": "上页",
+                    "sNext":     "下页",
+                    "sLast":     "末页"
+                },
+                "oAria": {
+                    "sSortAscending":  ": 以升序排列此列",
+                    "sSortDescending": ": 以降序排列此列"
+                }
+            }
+
+        } );
+
+    } );
+
+    function search(){
+        table.ajax.reload();
+    }
+
+    //封装查询参数
+    function getOperationLog(data){
+        var param = {};
+        //组装排序参数
+        param.beginTime = $("#beginTime-search").val();//查询条件
+        param.endTime = $("#endTime-search").val();//查询条件
+        param.logSign = $("#loginSign-search").val();//查询条件
+        //组装分页参数
+        param.start = data.start;
+        param.length = data.length;
+        param.draw = data.draw;
+        return param;
+    }
+
+    //时间戳转换成时间
+    function timestampToTime(timestamp) {
+        var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+        var D = change(date.getDate()) + ' ';
+        var h = change(date.getHours()) + ':';
+        var m = change(date.getMinutes()) + ':';
+        var s = change(date.getSeconds());
+        return Y+M+D+h+m+s;
+    }
+    function change(t) {
+        if (t < 10) {
+            return "0" + t;
+        } else {
+            return t;
+        }
+    }
+</script>
+
+</body>
+</html>

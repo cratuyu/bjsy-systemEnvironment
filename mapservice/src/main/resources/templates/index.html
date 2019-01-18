@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1" />-->
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width" />
+    <title>顺义APP后台数据管理</title>
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vendor/metisMenu/metisMenu.min.css" rel="stylesheet" />
+    <link href="/dist/css/sb-admin-2.css" rel="stylesheet" />
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+    <link href="/dist/css/indexInfo.css" rel="stylesheet" />
+    <style>
+        #page-wrapper{
+            min-height: 833px !important;
+        }
+        #wrappers{
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+        }
+    </style>
+</head>
+
+<body>
+<div id="wrappers">
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <img src="/1x/cloud2.png" style="width:100%; height: 65px;" />
+            <img src="1x/logo2.png" style="position: relative;bottom:57px;right :325px;width: 50px;height: 50px" />
+            <a class="navbar-brand" href="javascript:void(0)" style="position: relative;bottom: 60px; left: 70px;font-size: 32px; color: #4371C3;font-weight: bold">智慧环保民生服务系统</a>
+
+            <div style="position: relative;bottom: 50px;height: 75%;width: 100%;background: #fff;border-bottom:1px solid #399EDE">
+                <div class="borderShow" style="margin-left: 20px">
+                    <a class="menuc" url="/welcome" href="javascript:void(0)" style="padding: 0; ">
+                        <i class="fa fa-fw" style="width: 25px;height: 43px;">
+                            <img src="/shunyi/map.png" style="height: 50%;width: 100%;position: relative;bottom: 2px;" />
+                        </i>
+                        <span style="margin: 0 3px;">环保地图</span>
+                    </a>
+                </div>
+                <div class="borderShow">
+                    <a class="menuc" href="javascript:void(0)" url="/documentInfo" style="padding: 0;">
+                        <i class="fa fa-fw" style=";width: 25px;height: 43px">
+                            <img src="/shunyi/consultManagement.png" style="height: 50%;width: 100%;position: relative;bottom: 2px;" />
+                        </i>
+                        <span style="margin: 0 3px;">资讯管理</span>
+                    </a>
+                </div>
+                <div class="borderShow">
+                    <a class="menuc " url="/opinionFeedback" href="javascript:void(0)" style="padding: 0;">
+                        <i class="fa fa-fw" style="width: 25px;height: 43px">
+                            <img src="/shunyi/advice.png" style="height: 50%;width: 100%;position: relative;bottom: 2px;" />
+                        </i>
+                        <span style="margin: 0 3px;">意见反馈</span>
+                    </a>
+                </div>
+                <div class="borderShow" id="selector">
+                    <div style="width: 100%;height: 100%">
+                        <a href="#" class="menuc" style="padding: 0;" >
+                            <i class="fa fa-fw" style="width: 25px;height: 43px">
+                                <img src="/shunyi/reportManagement.png" style="height: 50%;width: 100%;margin: 12px auto;position: relative;bottom: 1px;" />
+                            </i>
+                            <span style="margin: 0 3px;" id="selectorSpan">统计报表</span>
+                        </a>
+                        <span class="triangle2"></span>
+                    </div>
+                    <div class="selectList">
+                        <p>
+                            <a class="fontShow3 menuc" url="/userActive" href="javascript:">用户登录详情</a>
+                        </p>
+                        <p>
+                            <a class="fontShow3 menuc" url="/userOperation" href="javascript:void(0)">用户操作详情</a>
+                        </p>
+                        <p>
+                            <a class="fontShow3 menuc" url="/dayAdd" href="javascript:void(0)">用户日增报表</a>
+                        </p>
+                        <p style="border-bottom-left-radius: 6px;border-bottom-right-radius: 6px;">
+                            <a class="fontShow3 menuc" url="/dayActive" href="javascript:void(0)">用户日活详情</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.navbar-header -->
+        <ul class="nav navbar-top-links navbar-right" style="position: relative;bottom:42px">
+            <li class="dropdown">
+                <ul>
+                    <li class="fontShow" style="width: 100px;" id="li1">
+                        <img src="/1x/user.png" style="position: relative;bottom: 3px;right: 15px"/>
+                        <span style="position: relative;right: 15px">管理员</span>
+                    </li>
+                    <li style="width: 120px;" id="li2" class="fontShow">
+                        <img src="/1x/home.png" style="position: relative;left: 14px;bottom: 2px;"/>
+                        <a href="http://124.42.41.43:9001/bjsy-sys/"  style="text-decoration:none;">首页导航</a>
+                    </li>
+                    <li style="width: 100px;" id="li3" class="fontShow">
+                        <img src="/1x/logout.png" style="position: relative;bottom: 2px;"/>
+                        <!--<form action="/loginOut" method="post" style="width: 50px; ">-->
+                            <!--<button type="submit" id="buttonExit" class="btn-link" style="text-align: right;text-decoration: none; padding: 0;border: 0;">退出</button>-->
+                        <!--</form>-->
+                        <a href="/loginOut"  style="text-decoration:none;position: relative;right: 14px;">退出</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="page-wrapper" style="position: relative;width: 100%;top: 0px;bottom:0px;min-height: 833px">
+        <iframe src="/welcome" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" width="100%"
+                height="100%"
+                id="iframecon" name="iframepage" onLoad="iFrameHeight();">
+        </iframe>
+    </div>
+
+</div>
+<!-- /#wrapper -->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/metisMenu/metisMenu.min.js"></script>
+<script src="/dist/js/sb-admin-2.js"></script>
+<!--&lt;!&ndash;&lt;!&ndash; 加载地图JSAPI脚本 &ndash;&gt;&ndash;&gt;-->
+<script src="https://webapi.amap.com/maps?v=1.4.11&amp;key=88220b2f28d847c8c727ecf42cd13f"></script>
+</body>
+
+
+<!--左边菜单控制切换右侧内容js-->
+<script>
+    $(document).ready(function (e) {
+        $(".menuc").click(function () {
+            var url = $(this).attr("url");
+            $("#iframecon").attr("src", url);
+        });
+        map = new AMap.Map('container',{
+            resizeEnable: true, //是否监控地图容器尺寸变化
+            zoom:11, //初始化地图层级
+            center: [116.650, 40.130] //初始化地图中心点
+        });
+        map.on('click', showInfoClick);
+        changeColor();
+    });
+    // var resultData = null;
+    var markers = [];
+    function addMarker() {
+        var marker = new AMap.Marker({
+            icon: "//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-default.png",
+            position: [116.650, 40.130],
+            // 设置是否可以拖拽
+            draggable: true,
+            cursor: 'move',
+            offset: new AMap.Pixel(-13, -30),
+            // 设置拖拽效果
+            raiseOnDrag: true
+        });
+        marker.setMap(map);
+        markers.push(marker);
+    }
+
+    function showInfoClick(e){
+        var text = '地图位置[ '+e.lnglat.getLng()+','+e.lnglat.getLat()+' ]';
+        document.querySelector("#text").innerText = text;
+    }
+
+    function changeColor(){
+        var arr = $(".nav>li>.borderShow");
+        $.each(arr, function (i, item) {
+            arr[i].onclick = function () {
+                $.each(arr, function (i, item) {
+                    item.style.background = "#fff";
+                    item.style.color =  "#05BAFB";
+                });
+                arr[i].style.background = "#05BAFB";
+                arr[i].style.color = "#fff";
+            }
+        })
+    }
+
+    function iFrameHeight() {
+        var ifm = document.getElementById("iframecon");
+        var subWeb = document.frames ? document.frames["iframepage"].document
+            : ifm.contentDocument;
+        if (ifm != null ) {
+            if(subWeb !=null){
+                ifm.height = subWeb.body.scrollHeight;
+            }
+        }
+    }
+</script>
+
+<!--iframe自适应内容高度js-->
+<!--<script type="text/javascript" language="javascript">-->
+    <!--function iFrameHeight() {-->
+        <!--var ifm = document.getElementById("iframecon");-->
+        <!--var subWeb = document.frames ? document.frames["iframepage"].document-->
+            <!--: ifm.contentDocument;-->
+            <!--if (ifm != null ) {-->
+                <!--if(subWeb !=null){-->
+                    <!--ifm.height = subWeb.body.scrollHeight;-->
+                <!--}-->
+            <!--}-->
+    <!--}-->
+<!--</script>-->
+
+</html>

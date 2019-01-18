@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/jquery.dataTables.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/matrix-style.css}"/>
+    <link rel="stylesheet" th:href="@{/css/matrix-media.css}"/>
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet"/>
+    <title>用户活跃情况</title>
+     <style>
+         #menu ul ul {
+             display: none;
+         }
+         #menu ul:nth-of-type(4) ul{
+             display: block ;
+         }
+         #menu ul:nth-of-type(4) ul .active a{
+             color: #fff !important;
+         }
+     </style>
+</head>
+<body>
+
+<!--Header-part-->
+<div id="header">
+    <h1><a href="dashboard.html">Matrix Admin</a></h1>
+</div>
+<!--close-Header-part-->
+
+<!--top-Header-menu-->
+<div th:include="common/top :: top"></div>
+<div th:include="common/menu :: menu"></div>
+
+<div id="content">
+    <!--<div id="content-header">-->
+        <!--<div id="breadcrumb"> <a href="#" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="#" class="current">Tables</a>  </div>-->
+    <div class="container-fluid">
+        <hr/>
+    </div>
+
+    <script th:src="@{/js/echarts.js}" th:sr></script>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width:1400px;height:400px;"></div>
+    <script type="text/javascript">
+        function initTopChart() {
+            // 基于准备好的dom，初始化echarts实例
+            var myChartTop = echarts.init(document.getElementById('main'));
+            // 指定图表的配置项和数据
+            var optionTop = {
+                title: {
+                    text: '本周用户活跃情况变化',
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['用户活跃']
+                },
+                toolbox: {
+                    right:30,
+                    show: true,
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        // data : ['周一','周二','周三','周四','周五','周六','周日']
+                        data: []
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        axisLabel: {
+                            formatter: '{value} 人'
+                        },
+                        minInterval: 1
+                    }
+                ],
+                series: [
+                    {
+                        name: '用户活跃',
+                        type: 'line',
+                        stack: '总量',
+                        // data:[120, 132, 101, 134, 90, 230, 100]
+                        data: []
+                    },
+                ]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChartTop.setOption(optionTop);
+
+            var names = [];    //类别数组（实际用来盛放X轴坐标值）
+            var nums = [];    //销量数组（实际用来盛放Y坐标值）
+            $.ajax({
+                type: "post",
+                async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+                url: "/ipInfos/weekIpInfo",    //请求发送到TestServlet处
+                data: {},
+                dataType: "json",        //返回数据形式为json
+                success: function (result) {
+                    //请求成功时执行该函数内容，result即为服务器返回的json对象
+                    if (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            names.push(result[i].time);    //挨个取出类别并填入类别数组
+                        }
+                        for (var i = 0; i < result.length; i++) {
+                            nums.push(result[i].count);    //挨个取出销量并填入销量数组
+                        }
+                        myChartTop.hideLoading();    //隐藏加载动画
+                        myChartTop.setOption({        //加载数据图表
+                            xAxis: {
+                                data: names
+                            },
+                            series: [{
+                                // 根据名字对应到相应的系列
+                                name: '用户活跃',
+                                data: nums
+                            }]
+                        });
+                    }
+                },
+                error: function (errorMsg) {
+                    //请求失败时执行该函数
+                    myChartTop.hideLoading();
+                }
+            })
+        }
+        initTopChart();
+    </script>
+
+    <hr/>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label>时间:</label>
+                        <input type="month" class="form-control" id="time-search" placeholder="选择时间"/>
+                    </div>
+                    <button type="button" onclick="initEndChart();" class="btn btn-primary">查询</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="main1" style="width:1400px;height:600px;"></div>
+    <script type="text/javascript">
+        function initEndChart() {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main1'));
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '本月用户活跃情况变化',
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['用户活跃']
+                },
+                toolbox: {
+                    right:30,
+                    show: true,
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        // data : ['周一','周二','周三','周四','周五','周六','周日']
+                        data: []
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        axisLabel: {
+                            formatter: '{value} 人'
+                        },
+                        minInterval: 1
+                    }
+                ],
+                series: [
+                    {
+                        name: '用户活跃',
+                        type: 'line',
+                        stack: '总量',
+                        // data:[120, 132, 101, 134, 90, 230, 100]
+                        data: []
+                    },
+
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+
+            var name = [];    //类别数组（实际用来盛放X轴坐标值）
+            var num = [];    //销量数组（实际用来盛放Y坐标值）
+            var time = $("#time-search").val(); //请求参数
+
+            $.ajax({
+                type: "post",
+                async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+                url: "/ipInfos/monthIpInfo",    //请求发送到TestServlet处
+                data: {"time": time},
+                dataType: "json",        //返回数据形式为json
+                success: function (data) {
+                    //请求成功时执行该函数内容，result即为服务器返回的json对象
+                    if (data) {
+                        for (var i = 0; i < data.length; i++) {
+                            name.push(data[i].time);    //挨个取出类别并填入类别数组
+                        }
+                        for (var i = 0; i < data.length; i++) {
+                            num.push(data[i].count);    //挨个取出销量并填入销量数组
+                        }
+                        myChart.hideLoading();    //隐藏加载动画
+                        myChart.setOption({        //加载数据图表
+                            xAxis: {
+                                data: name
+                            },
+                            series: [{
+                                // 根据名字对应到相应的系列
+                                name: '用户活跃',
+                                data: num
+                            }]
+                        });
+                    }
+                },
+                error: function (errorMsg) {
+                    //请求失败时执行该函数
+                    myChart.hideLoading();
+                }
+            });
+        }
+        initEndChart();
+    </script>
+</div>
+</body>
+</html>

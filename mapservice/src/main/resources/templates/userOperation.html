@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>顺义用户操作详情</title>
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/vendor/metisMenu/metisMenu.min.css" rel="stylesheet"/>
+    <link href="/dist/css/sb-admin-2.css" rel="stylesheet"/>
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <style type="text/css">
+        #wrapper {
+            width: 97%;
+            margin: auto;
+            overflow: auto;
+        }
+        #page_div{
+            text-align:center;
+            padding-top:4px;
+            padding-bottom:4px;
+            /*margin-top:10%;*/
+        }
+        .button{
+            position:absolute;
+            left:200px;
+            /*top:3px;*/
+        }
+    </style>
+</head>
+<body style="height: 900px;overflow: auto;">
+<div id="wrapper" >
+    <div id="container-fluid" style="width:1550px">
+        <div class="row">
+            <div class="col-lg-12"><h2 class="page-header" style="margin: 20px 20px 20px">查看用户操作详情</h2></div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <label class="control-label">时间:</label>
+                        <select id="time-search"  class="form-control">
+                            <option value="今日">今日</option>
+                            <option value="近七日">近七日</option>
+                            <option value="近一月">近一月</option>
+                            <option value="">全部</option>
+                        </select>
+                    </div>
+                    <button type="button"  onclick="search();" class="btn btn-primary">查询</button>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">列表</div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <table width="100%" class="table table-striped table-bordered table-hover">
+                            <thead>
+                            <tr >
+                                <th>id</th>
+                                <th>功能名称</th>
+                                <th>时间</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="page_div" >
+                        <input type="button" value="首页" class="btn btn-default" onclick="showPage(0)" />
+                        <input type="button" value="上一页" class="btn btn-default" onclick="showPage(pageNum-1)" />
+                        <input type="button" value="下一页" class="btn btn-default" onclick="showPage(pageNum+1)" />
+                        <input type="button" value="尾页" class="btn btn-default" onclick="showPage(pageCount)"   />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/metisMenu/metisMenu.min.js"></script>
+<script src="/dist/js/sb-admin-2.js"></script>
+<script>
+    pageNum = 0;
+    pageCount = 0;
+    $(document).ready(function() {
+        $("#wrapper").height((document.body.clientHeight)*0.9);
+        list();
+        $(".button").bind("click", function() {
+            list();
+        });
+    });
+    function search() {
+        list();
+    }
+    function list(){
+        var time = $('#time-search').val();
+        var url = "/userOperationList";
+        $.ajax({
+            type:'post',
+            url:url,
+            datatype: "json",
+            data:{"pageNum":0, "time":time},
+            success:function(result){
+                $("#table").children().remove();
+                if(result.data.length>0){
+                    var html = "";
+                    pageCount = result.recordCount;
+                    $.each(result.data, function(i, item) {
+                        if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.DocumentController.getDocumentInfos"){
+                            item.interfaceAddress = "顺义生态中微信公众号的文档列表";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getWeatherInfo"){
+                            item.interfaceAddress = "首页中当天天气信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getWeatherCityInfos"){
+                            item.interfaceAddress = "首页中北京市区县列表";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.DocumentController.getDocumentTypes"){
+                            item.interfaceAddress =  "顺义生态中微信公共号文档类别列表";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.DocumentController.getDocument"){
+                            item.interfaceAddress = "顺义生态中微信公众号单篇文章";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getWaterQualityReservoirInfos"){
+                            item.interfaceAddress = "环保地图中饮用水源信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getRiverWaterQualityInfos"){
+                            item.interfaceAddress = "环保地图中河流水质信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getGwtWaterInfos"){
+                            item.interfaceAddress = "环保地图中地表水水质信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getAirQualityGradeInfo"){
+                            item.interfaceAddress = "环保地图中空气质量等级";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.FairsenseController.getFairsenseStationInfos"){
+                            item.interfaceAddress = "环保地图中微站站点列表";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getCityAir"){
+                            item.interfaceAddress = "环保地图中城市空气";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getCountryMonitorWaterCompanyInfos"){
+                            item.interfaceAddress = "环保地图中企业废水信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getCountryMonitorAirCompanyInfos"){
+                            item.interfaceAddress = "环保地图中企业废气信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.VersionController.getCheckUpdate"){
+                            item.interfaceAddress = "个人信息中版本更新";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getAvenueWeatherInfo"){
+                            item.interfaceAddress = "环保地图中获取当天街道天气信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.login"){
+                            item.interfaceAddress = "个人信息中账号登录";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.getSMSVerificationCode"){
+                            item.interfaceAddress = "个人信息中获取手机短信验证码";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.addUser"){
+                            item.interfaceAddress = "个人信息中用户注册";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.postOpinionFeedback"){
+                            item.interfaceAddress = "个人信息中意见反馈";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.logout"){
+                            item.interfaceAddress = "个人信息中用户退出";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.loginByOpenId"){
+                            item.interfaceAddress = "个人信息中第三方登录";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.postUserCollectInfo"){
+                            item.interfaceAddress = "顺义生态中新增收藏";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.deleteUserCollectInfo"){
+                            item.interfaceAddress = "顺义生态中取消收藏";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.getUserLikeHistoryList"){
+                            item.interfaceAddress = "顺义生态中用户点赞足迹";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.getUserCollectHistoryList"){
+                            item.interfaceAddress = "顺义生态中用户收藏足迹";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.getUserCommentHistoryList"){
+                            item.interfaceAddress = "顺义生态中用户评论足迹";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getAirRankingInfo"){
+                            item.interfaceAddress = "环保地图中获取全国空气质量实时排名";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.postUserLikeInfo"){
+                            item.interfaceAddress = "顺义生态中新增点赞";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalroteFirstction.web.controller.UserController.deleteUserLikeInfo"){
+                            item.interfaceAddress = "顺义生态中取消点赞";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.loginBySMSCode"){
+                            item.interfaceAddress = "个人信息中短信或语音验证码登录";
+                        }else {
+                            item.interfaceAddress = "其他";
+                        }
+                        /*<![CDATA[*/
+                        var date = new Date(item.updateTime);
+                        var month = date.getMonth()+1;
+                        if(month<10){
+                            month = "0"+month;
+                        }
+                        var day = date.getDate();
+                        if(day<10){
+                            day = "0"+day;
+                        }
+                        var hour = date.getHours();
+                        if(hour<10){
+                            hour = "0"+hour;
+                        }
+                        var minute = date.getMinutes();
+                        if(minute<10){
+                            minute = "0"+minute
+                        }
+                        var second = date.getSeconds();
+                        if(second<10){
+                            second = "0"+second
+                        }
+                        /*]]>*/
+                        var strDate = date.getFullYear()+"-"+month+"-"+day+" "+hour+":"+minute+":"+second;
+                        html = html + "<tr>"
+                            + "<td>" + item.id + "</td>"
+                            + "<td>" + item.interfaceAddress + "</td>"
+                            + "<td>" + strDate + "</td>"
+                            + "</tr>";
+                    });
+                    pageNum = 0;
+                    $("#table").append(html);
+                }
+            },
+            error:function(){
+                alert("请求错误");
+            }
+        });
+    }
+
+    function showPage(count) {
+        /*<![CDATA[*/
+        if(count <= 0){
+            pageNum = 0;
+        }else{
+            pageNum = count;
+        }
+        console.log("***********");
+        console.log(pageNum);
+        console.log(pageCount);
+        console.log("***********");
+        /*]]>*/
+        var time = $('#time-search').val();
+        var url = "/userOperationList";
+        $.ajax({
+            type:'post',
+            url:url,
+            datatype: "json",
+            data:{"pageNum":pageNum, "time":time},
+            success:function(result){
+                if(result.data.length>0){
+                    // pageCount = result.recordCount;
+                    $("#table").children().remove();
+                    var html = "";
+                    $.each(result.data, function(i, item) {
+                        /*<![CDATA[*/
+                        var date = new Date(item.updateTime);
+                        var month = date.getMonth()+1;
+                        if(month<10){
+                            month = "0"+month;
+                        }
+                        var day = date.getDate();
+                        if(day<10){
+                            day = "0"+day;
+                        }
+                        var hour = date.getHours();
+                        if(hour<10){
+                            hour = "0"+hour;
+                        }
+                        var minute = date.getMinutes();
+                        if(minute<10){
+                            minute = "0"+minute
+                        }
+                        var second = date.getSeconds();
+                        if(second<10){
+                            second = "0"+second
+                        }
+                        /*]]>*/
+                        var strDate = date.getFullYear()+"-"+month+"-"+day+" "+hour+":"+minute+":"+second;
+                        if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.DocumentController.getDocumentInfos"){
+                            item.interfaceAddress = "顺义生态中微信公众号的文档列表";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getWeatherInfo"){
+                            item.interfaceAddress = "首页中当天天气信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getWeatherCityInfos"){
+                            item.interfaceAddress = "首页中北京市区县列表";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.DocumentController.getDocumentTypes"){
+                            item.interfaceAddress =  "顺义生态中微信公共号文档类别列表";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.DocumentController.getDocument"){
+                            item.interfaceAddress = "顺义生态中微信公众号单篇文章";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getWaterQualityReservoirInfos"){
+                            item.interfaceAddress = "环保地图中饮用水源信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getRiverWaterQualityInfos"){
+                            item.interfaceAddress = "环保地图中河流水质信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getGwtWaterInfos"){
+                            item.interfaceAddress = "环保地图中地表水水质信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getAirQualityGradeInfo"){
+                            item.interfaceAddress = "环保地图中空气质量等级";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.FairsenseController.getFairsenseStationInfos"){
+                            item.interfaceAddress = "环保地图中微站站点列表";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getCityAir"){
+                            item.interfaceAddress = "环保地图中城市空气";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getCountryMonitorWaterCompanyInfos"){
+                            item.interfaceAddress = "环保地图中企业废水信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getCountryMonitorAirCompanyInfos"){
+                            item.interfaceAddress = "环保地图中企业废气信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.VersionController.getCheckUpdate"){
+                            item.interfaceAddress = "个人信息中版本更新";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getAvenueWeatherInfo"){
+                            item.interfaceAddress = "环保地图中获取当天街道天气信息";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.login"){
+                            item.interfaceAddress = "个人信息中账号登录";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.getSMSVerificationCode"){
+                            item.interfaceAddress = "个人信息中获取手机短信验证码";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.addUser"){
+                            item.interfaceAddress = "个人信息中用户注册";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.postOpinionFeedback"){
+                            item.interfaceAddress = "个人信息中意见反馈";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.logout"){
+                            item.interfaceAddress = "个人信息中用户退出";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.loginByOpenId"){
+                            item.interfaceAddress = "个人信息中第三方登录";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.postUserCollectInfo"){
+                            item.interfaceAddress = "顺义生态中新增收藏";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.deleteUserCollectInfo"){
+                            item.interfaceAddress = "顺义生态中取消收藏";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.getUserLikeHistoryList"){
+                            item.interfaceAddress = "顺义生态中用户点赞足迹";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.getUserCollectHistoryList"){
+                            item.interfaceAddress = "顺义生态中用户收藏足迹";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.getUserCommentHistoryList"){
+                            item.interfaceAddress = "顺义生态中用户评论足迹";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.AirController.getAirRankingInfo"){
+                            item.interfaceAddress = "环保地图中获取全国空气质量实时排名";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.postUserLikeInfo"){
+                            item.interfaceAddress = "顺义生态中新增点赞";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalroteFirstction.web.controller.UserController.deleteUserLikeInfo"){
+                            item.interfaceAddress = "顺义生态中取消点赞";
+                        }else if(item.interfaceAddress=="com.leadmap.environmentalrotection.web.controller.UserController.loginBySMSCode"){
+                            item.interfaceAddress = "个人信息中短信或语音验证码登录";
+                        }else {
+                            item.interfaceAddress = "其他";
+                        };
+                        html = html + "<tr>"
+                            + "<td>" + item.id + "</td>"
+                            + "<td>" + item.interfaceAddress + "</td>"
+                            + "<td>" + strDate + "</td>"
+                            + "</tr>";
+                    });
+                    $("#table").append(html);
+                } else{
+                    pageNum = pageNum - 1;
+                    alert("没有更多数据了");
+                }
+            },
+            error:function(){
+                alert("请求错误");
+            }
+        })
+    }
+</script>
+</body>
+</html>

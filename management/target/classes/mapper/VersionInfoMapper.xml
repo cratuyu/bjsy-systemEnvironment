@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leadmap.management.mapper.VersionInfoMapper">
+  <resultMap id="BaseResultMap" type="com.leadmap.management.model.VersionInfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="is_force_updata" jdbcType="VARCHAR" property="isForceUpdata" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="version_desc" jdbcType="VARCHAR" property="versionDesc" />
+    <result column="version_name" jdbcType="VARCHAR" property="versionName" />
+    <result column="version_platform" jdbcType="VARCHAR" property="versionPlatform" />
+    <result column="version_url" jdbcType="VARCHAR" property="versionUrl" />
+  </resultMap>
+
+  <select id="insertVersionInfo" resultType="com.leadmap.management.model.VersionInfo">
+     insert into version_info values(null ,#{isForceUpdata} ,#{updateTime} ,#{versionDesc},#{versionName},#{versionPlatform} ,#{versionUrl})
+  </select>
+
+  <select id="selectByVersionInfo" parameterType="com.leadmap.management.model.VersionInfo" resultMap="BaseResultMap">
+    select * from  version_info order by id desc
+  </select>
+
+</mapper>
